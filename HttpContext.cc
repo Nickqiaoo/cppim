@@ -1,30 +1,30 @@
 #include "HttpContext.h"
 #include "Buffer.h"
 
-//GET /path?parm HTTP/1.1\r\n
-bool HttpContext::parseRequestLine(const char* begin, const char* end){
+// GET /path?parm HTTP/1.1\r\n
+bool HttpContext::parseRequestLine(const char *begin, const char *end) {
     bool success = false;
-    const char* start = begin;
-    const char* space = std::find(start, end, ' ');
-    if(space != end && request_.setMethod(start, space)){
+    const char *start = begin;
+    const char *space = std::find(start, end, ' ');
+    if (space != end && request_.setMethod(start, space)) {
         start = space + 1;
         space = std::find(start, end, ' ');
-        if(space != end){
-            const char* query = std::find(start, space, '?');
-            if(query != space){
+        if (space != end) {
+            const char *query = std::find(start, space, '?');
+            if (query != space) {
                 request_.setPath(start, query);
                 request_.setQuery(query + 1, space);
-            }else{
-                request_.setPath(start,query);
+            } else {
+                request_.setPath(start, query);
             }
             start = space + 1;
-            success = end - start == 8 && std::equal(start, end-1, "HTTP/1.");
-            if(success){
-                if(*(end-1) == '1'){
+            success = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");
+            if (success) {
+                if (*(end - 1) == '1') {
                     request_.setVersion(HttpRequest::kHttp11);
-                }else if(*(end-1) == '0'){
+                } else if (*(end - 1) == '0') {
                     request_.setVersion(HttpRequest::kHttp10);
-                }else{
+                } else {
                     success = false;
                 }
             }
@@ -33,51 +33,52 @@ bool HttpContext::parseRequestLine(const char* begin, const char* end){
     return success;
 }
 
-bool HttpContext::parseRequest(Buffer* buf){
-    bool ok= true;
+bool HttpContext::parseRequest(Buffer *buf) {
+    bool ok = true;
     bool hasMore = true;
-    while(hasMore){
-        if(state_ == kExpectRequestLine){
-            const char* crlf = buf->findCRLF();
-            if(crlf){
+    while (hasMore) {
+        if (state_ == kExpectRequestLine) {
+            const char *crlf = buf->findCRLF();
+            if (crlf) {
                 ok = parseRequestLine(buf->peek(), crlf);
-                if(ok){
+                if (ok) {
                     buf->retrieveUntil(crlf + 2);
                     state_ = kExpectHeaders;
-                }else{
+                } else {
                     hasMore = false;
                 }
-            }else{
+            } else {
                 hasMore = false;
             }
-        }else if(state_ == kExpectHeaders){
-            const char* crlf = buf->findCRLF();
-            if(crlf){
-                const char* colon = std::find(buf->peek(), crlf, ':');
-                if(colon != crlf){
+        } else if (state_ == kExpectHeaders) {
+            const char *crlf = buf->findCRLF();
+            if (crlf) {
+                const char *colon = std::find(buf->peek(), crlf, ':');
+                if (colon != crlf) {
                     request_.addHeader(buf->peek(), colon, crlf);
-                }else{
-                    if(buf->peek() == crlf){
+                } else {
+                    if (buf->peek() == crlf) {
                         state_ = kExpectBody;
-                    }else{
+                    } else {
                         //状态变成kGotAll还是返回错误？
                         hasMore = false;
                     }
                 }
                 buf->retrieveUntil(crlf + 2);
-            }else{
+            } else {
                 hasMore = false;
             }
-        }else if(state_ == kExpectBody){
-            int contentlength =atoi(request_.getHeader("Content-Length").c_str());
-            if(contentlength > 0){
-                if(buf->beginWrite()- buf->peek() >= contentlength){
+        } else if (state_ == kExpectBody) {
+            int contentlength =
+                atoi(request_.getHeader("Content-Length").c_str());
+            if (contentlength > 0) {
+                if (buf->beginWrite() - buf->peek() >= contentlength) {
                     state_ = kGotAll;
-                    request_.setBody(buf->peek(), buf->peek()+contentlength);
-                }else{
+                    request_.setBody(buf->peek(), buf->peek() + contentlength);
+                } else {
                     hasMore = false;
                 }
-            }else{
+            } else {
                 state_ = kGotAll;
                 hasMore = false;
             }
