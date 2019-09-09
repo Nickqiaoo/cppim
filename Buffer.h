@@ -234,6 +234,6 @@ class Buffer
   size_t readerIndex_;
   size_t writerIndex_;
 
-  static const char kCRLF[] = "\r\n";
+  static const char kCRLF[];
 };
 

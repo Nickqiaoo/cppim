@@ -61,6 +61,7 @@ bool HttpContext::parseRequest(Buffer *buf) {
                         state_ = kExpectBody;
                     } else {
                         //状态变成kGotAll还是返回错误？
+                        ok = false;
                         hasMore = false;
                     }
                 }
@@ -69,8 +70,7 @@ bool HttpContext::parseRequest(Buffer *buf) {
                 hasMore = false;
             }
         } else if (state_ == kExpectBody) {
-            int contentlength =
-                atoi(request_.getHeader("Content-Length").c_str());
+            int contentlength = atoi(request_.getHeader("Content-Length").c_str());
             if (contentlength > 0) {
                 if (buf->beginWrite() - buf->peek() >= contentlength) {
                     state_ = kGotAll;
