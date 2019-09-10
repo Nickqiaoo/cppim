@@ -1,5 +1,5 @@
 #include "HttpServer.h"
-#include<iostream>
+#include <iostream>
 
 HttpServer::HttpServer(asio::io_service io_service, asio::ip::tcp::endpoint ep)
     : io_service_(io_service), acceptor_(io_service, ep) {}
