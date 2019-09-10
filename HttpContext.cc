@@ -1,6 +1,8 @@
 #include "HttpContext.h"
 #include "Buffer.h"
 
+const char Buffer::kCRLF[]= "\r\n";
+
 // GET /path?parm HTTP/1.1\r\n
 bool HttpContext::parseRequestLine(const char *begin, const char *end) {
     bool success = false;

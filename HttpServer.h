@@ -6,7 +6,8 @@ class HttpServer {
     typedef std::shared_ptr<HttpSession> HttpSessionPtr;
 
   public:
-    HttpServer(asio::io_service, asio::ip::tcp::endpoint ep);
+    HttpServer(asio::io_service& io_service, asio::ip::tcp::endpoint ep);
+    ~HttpServer();
     void doAccept();
     void Start();
   private:

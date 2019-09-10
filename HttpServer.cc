@@ -1,7 +1,7 @@
 #include "HttpServer.h"
-#include<iostream>
+#include <iostream>
 
-HttpServer::HttpServer(asio::io_service io_service, asio::ip::tcp::endpoint ep)
+HttpServer::HttpServer(asio::io_service& io_service, asio::ip::tcp::endpoint ep)
     : io_service_(io_service), acceptor_(io_service, ep) {}
 
 HttpServer::~HttpServer() {}
@@ -12,6 +12,7 @@ void HttpServer::Start(){
         if(err){
             std::cout<<"accept err:"<<err.message()<<std::endl;
         }
+        std::cout<<"new client"<<std::endl;
         session->Start();
         Start();
     });
