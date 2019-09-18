@@ -1,6 +1,6 @@
 #include<iostream>
 #include<asio.hpp>
-   
+
 using namespace asio;
 
 io_service service;
