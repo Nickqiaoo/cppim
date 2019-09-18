@@ -25,6 +25,7 @@ int main(){
     writebuf.append("GET /hello HTTP/1.1\r\n\r\n",23);
     size = socket.write_some(asio::buffer(writebuf.peek(),writebuf.readableBytes()));
     writebuf.retrieve(size);
+    
     size = socket.read_some(asio::buffer(readbuf.beginWrite(),readbuf.writableBytes()));
     readbuf.hasWritten(size);
 
