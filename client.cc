@@ -28,6 +28,7 @@ int main(){
     
     size = socket.read_some(asio::buffer(readbuf.beginWrite(),readbuf.writableBytes()));
     readbuf.hasWritten(size);
+    
     str = string(readbuf.peek(),readbuf.readableBytes());
 
     return 0;
