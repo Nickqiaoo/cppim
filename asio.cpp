@@ -16,7 +16,8 @@ void doWrite(std::shared_ptr<ip::tcp::socket> sock){
     sock->async_write_some(buffer(buf),[sock](const asio::error_code &err, size_t nwrite){
         doRead(sock);
     });
-} 
+}
+ 
 void doRead(std::shared_ptr<ip::tcp::socket> sock){
     sock->async_read_some(buffer(buf),[sock](const asio::error_code &err, size_t nread){
         std::cout<<buf;
