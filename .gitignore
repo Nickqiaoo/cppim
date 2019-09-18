@@ -2,3 +2,5 @@ asio
 httpclient
 httpserver
 .vscode
+build
+http*

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <map>
 #include <stdio.h>
+#include <string>
 
 using namespace std;
 

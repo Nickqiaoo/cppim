@@ -2,7 +2,7 @@
 #include "HttpSession.h"
 
 HttpSession::HttpSession(asio::io_service &io_service) : socket_(io_service) {}
-
+HttpSession::~HttpSession(){}
 void HttpSession::Start(){
     auto self(shared_from_this());
     socket_.async_read_some(asio::buffer(readbuf_.beginWrite(),readbuf_.writableBytes()),[self,this](const asio::error_code& err , size_t size){

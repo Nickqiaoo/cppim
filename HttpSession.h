@@ -11,6 +11,7 @@ class HttpSession : public std::enable_shared_from_this<HttpSession> {
   public:
     HttpSession(const HttpSession &) = delete;
     HttpSession operator=(const HttpSession &) = delete;
+    ~HttpSession();
     explicit HttpSession(asio::io_service &service);
 
     asio::ip::tcp::socket &Socket() { return socket_; }
