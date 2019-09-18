@@ -9,7 +9,6 @@ ip::tcp::endpoint ep (ip::tcp::v4(),8080);
 ip::tcp::acceptor acc(service, ep);
 char buf[1024];
 
-
 void doRead(std::shared_ptr<ip::tcp::socket> sock);
 
 void doWrite(std::shared_ptr<ip::tcp::socket> sock){
