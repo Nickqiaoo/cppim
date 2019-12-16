@@ -20,7 +20,7 @@ void HttpSession::Start(){
                 //HttpCallback();
                 context_.reset();
                 Buffer buf;
-                buf.append("HTTP/1.1 200 OK\r\n\r\n",19);
+                buf.append("HTTP/1.1 200 OK\r\nContent-Length: 4\r\nConnection: keep-alive\r\n\r\ntest",66);
                 Send(&buf);
             }
             Start();
@@ -36,6 +36,7 @@ void HttpSession::Send(Buffer* buf){
     async_write(socket_,asio::buffer(buf->peek(),buf->readableBytes()),[self,this](const asio::error_code& err, size_t size){
         if(!err){
             std::cout<<"send data :"<<size<<std::endl;
+            //socket_.close();
         }else{
             std::cout<<"send errer :"<<err.message()<<std::endl;
             return ;

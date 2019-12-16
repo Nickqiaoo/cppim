@@ -7,8 +7,9 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
 
-#add_definitions(-DASIO_STANDALONE)
+add_definitions(-DASIO_STANDALONE)
 add_executable(httpserver server.cc HttpServer.cc HttpContext.cc HttpSession.cc )
+add_executable(httpclient client.cc)
 #target_link_libraries(httpserver libhello.a)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
