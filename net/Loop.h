@@ -12,7 +12,10 @@ class Loop {
 
     void start();
     void stop();
-    void runInLoop();
+    void runInLoop(const Callback& cb);
+    asio::io_service& getios(){
+      return *ios_;
+    }
 
   private:
     void run();

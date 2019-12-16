@@ -4,10 +4,10 @@
 #include <functional>
 
 
-class Accepter {
+class Acceptor {
   public:
-    explicit Accepter(const LoopPtr& loop, const std::string& ip, int port);
-    ~Accepter();
+    explicit Acceptor(const LoopPtr& loop, const std::string& ip, int port);
+    ~Acceptor();
 
     bool start();
     bool stop();
@@ -21,6 +21,7 @@ class Accepter {
     void close();
 
   private:
-    asio::ip::tcp::acceptor accepter_;
+    LoopPtr loop_;
+    asio::ip::tcp::acceptor acceptor_;
     NewSessionCallback newSessionCallback_;
 };

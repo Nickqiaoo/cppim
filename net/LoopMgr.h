@@ -15,5 +15,4 @@ class LoopMgr{
     std::mutex mutex_;
     std::vector<LoopPtr> loops_;
     size_t next_;
-
 };
