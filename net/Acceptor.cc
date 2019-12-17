@@ -3,13 +3,13 @@
 #include "Session.h"
 
 Acceptor::Acceptor(const LoopPtr &loop, const std::string &ip, int port)
-    : loop_(loop), acceptor_(loop->ios()) {}
+    : loop_(loop), ip_(ip), port_(port), acceptor_(loop->ios()) {}
 
 Acceptor::~Acceptor(){}
 bool Acceptor::start() { loop_->runInLoop(std::bind(&Acceptor::listen, this)); }
 
 void Acceptor::listen() {
-    asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
+    asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip_), port_);
 
     acceptor_.open(ep.protocol());
     acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));

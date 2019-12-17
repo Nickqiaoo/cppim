@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <mutex>
 #include "net_define.h"
 
@@ -14,5 +15,5 @@ class LoopMgr{
     private:
     std::mutex mutex_;
     std::vector<LoopPtr> loops_;
-    size_t next_;
+    std::atomic<size_t> next_{0};
 };

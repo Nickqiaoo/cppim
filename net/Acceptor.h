@@ -22,7 +22,7 @@ class Acceptor {
   private:
     LoopPtr loop_;
     asio::ip::tcp::acceptor acceptor_;
-    std::string ip;
-    int port;
+    std::string ip_;
+    int port_;
     NewSessionCallback newSessionCallback_;
 };

@@ -16,6 +16,8 @@ void LoopMgr::start(){
 }
 
 LoopPtr LoopMgr::findNextLoop() {
-  next_ = ++next_ >= loops_.size() ? 1 : next_;
+  if(++next_ == loops_.size()){
+    next_ = 0;
+  }
   return loops_[next_];
 }
