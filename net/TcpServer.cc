@@ -9,6 +9,8 @@ TcpServer::~TcpServer(){}
 SessionPtr TcpServer::newSession() {
     auto loop = loopmgr_.findNextLoop();
     auto session = std::make_shared<Session>(loop, sessionid_++);
+    session->setMessageCallback(messagecallback_);
+    return session;
 }
 
 void TcpServer::start(){

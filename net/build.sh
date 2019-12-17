@@ -1,1 +1,1 @@
-g++ -o tcpserver main.cc Acceptor.cc Loop.cc LoopMgr.cc Session.cc TcpServer.cc -std=c++11 -lpthread -g 
+g++ -o tcpserver main.cc Acceptor.cc Loop.cc LoopMgr.cc Session.cc TcpServer.cc -std=c++11 -lpthread -O2 
