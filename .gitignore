@@ -1,6 +1,7 @@
 asio
 httpclient
 httpserver
+tcpserver
 .vscode
 build
 http*

@@ -13,7 +13,7 @@ class Loop {
     void start();
     void stop();
     void runInLoop(const Callback& cb);
-    asio::io_service& getios(){
+    asio::io_service& ios(){
       return *ios_;
     }
 

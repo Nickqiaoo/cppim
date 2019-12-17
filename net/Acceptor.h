@@ -3,7 +3,6 @@
 #include <string>
 #include <functional>
 
-
 class Acceptor {
   public:
     explicit Acceptor(const LoopPtr& loop, const std::string& ip, int port);
@@ -23,5 +22,7 @@ class Acceptor {
   private:
     LoopPtr loop_;
     asio::ip::tcp::acceptor acceptor_;
+    std::string ip;
+    int port;
     NewSessionCallback newSessionCallback_;
 };
