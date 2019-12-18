@@ -27,5 +27,7 @@ class Session : public std::enable_shared_from_this<Session> {
     Buffer readbuf_;
     Buffer writebuf_;
     asio::ip::tcp::socket socket_;
+    std::vector<BufferPtr> unsend_buf_;
+    std::vector<BufferPtr> tmp_buf_;
     onMessageCallback messagecallback_;
 };

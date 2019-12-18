@@ -5,7 +5,7 @@
 Acceptor::Acceptor(const LoopPtr &loop, const std::string &ip, int port)
     : loop_(loop), ip_(ip), port_(port), acceptor_(loop->ios()) {}
 
-Acceptor::~Acceptor(){}
+Acceptor::~Acceptor() {}
 bool Acceptor::start() { loop_->runInLoop(std::bind(&Acceptor::listen, this)); }
 
 void Acceptor::listen() {

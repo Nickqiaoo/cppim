@@ -10,6 +10,7 @@ SessionPtr TcpServer::newSession() {
     auto loop = loopmgr_.findNextLoop();
     auto session = std::make_shared<Session>(loop, sessionid_++);
     session->setMessageCallback(messagecallback_);
+    connections_.insert({sessionid_, session});
     return session;
 }
 
