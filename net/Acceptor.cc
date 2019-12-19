@@ -6,7 +6,7 @@ Acceptor::Acceptor(const LoopPtr &loop, const std::string &ip, int port)
     : loop_(loop), ip_(ip), port_(port), acceptor_(loop->ios()) {}
 
 Acceptor::~Acceptor() {}
-bool Acceptor::start() { loop_->runInLoop(std::bind(&Acceptor::listen, this)); }
+void Acceptor::start() { loop_->runInLoop(std::bind(&Acceptor::listen, this)); }
 
 void Acceptor::listen() {
     asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip_), port_);
@@ -22,10 +22,16 @@ void Acceptor::listen() {
 void Acceptor::accept() {
     auto session = newSessionCallback_();
     acceptor_.async_accept(session->Socket(), [session, this](const asio::error_code &err) {
+        if(!acceptor_.is_open()){
+            return ;
+        }
         if (!err) {
             session->start();
         } else {
         }
         accept();
     });
+}
+void Acceptor::close(){
+    acceptor_.close();
 }

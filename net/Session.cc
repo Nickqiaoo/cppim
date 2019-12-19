@@ -9,28 +9,28 @@ void Session::start() {
     socket_.non_blocking(true);
     asio::ip::tcp::no_delay nodelay(true);
     socket_.set_option(nodelay);
+    socket_.set_option(asio::socket_base::keep_alive(true));
     read();
 }
 
 void Session::read() {
     auto self(shared_from_this());
-    socket_.async_read_some(asio::buffer(read_buf_.beginWrite(), read_buf_.writableBytes()),
-                            [self, this](const asio::error_code &err, size_t size) {
-                                if (!err) {
-                                    //std::cout << "recieve data" << std::endl;
-                                    read_buf_.hasWritten(size);
-                                    // messagecallback_(self, &read_buf_);
-                                    // write_buf_.append(read_buf_.peek(),
-                                    // read_buf_.readableBytes());
-                                    // read_buf_.retrieve(read_buf_.readableBytes());
-                                    send(std::make_shared<Buffer>(read_buf_));
-                                    read_buf_.retrieveAll();
-                                    read();
-                                } else {
-                                    std::cout << "read errer :" << err.message() << std::endl;
-                                    return;
-                                }
-                            });
+    socket_.async_read_some(asio::buffer(read_buf_.beginWrite(), read_buf_.writableBytes()), [self, this](const asio::error_code &err, size_t size) {
+        if (!err) {
+            // std::cout << "recieve data" << std::endl;
+            read_buf_.hasWritten(size);
+            // messagecallback_(self, &read_buf_);
+            // write_buf_.append(read_buf_.peek(),
+            // read_buf_.readableBytes());
+            // read_buf_.retrieve(read_buf_.readableBytes());
+            send(std::make_shared<Buffer>(read_buf_));
+            read_buf_.retrieveAll();
+            read();
+        } else {
+            std::cout << "read errer :" << err.message() << std::endl;
+            return;
+        }
+    });
 }
 
 void Session::send(BufferPtr buffer) {
@@ -63,18 +63,36 @@ void Session::write() {
     }
 
     auto self(shared_from_this());
-    socket_.async_write_some(asio::buffer(write_buf_.peek(), write_buf_.readableBytes()),
-                             [self, this](const asio::error_code &err, size_t size) {
-                                 if (!err) {
-                                     write_buf_.retrieve(write_buf_.readableBytes());
-                                     {
-                                         std::lock_guard<std::mutex> guard(this->mutex_);
-                                         if (this->unsend_queue_.empty()) return;
-                                     }
-                                     write();
-                                 } else {
-                                     std::cout << "write errer :" << err.message() << std::endl;
-                                     return;
-                                 }
-                             });
+    socket_.async_write_some(asio::buffer(write_buf_.peek(), write_buf_.readableBytes()), [self, this](const asio::error_code &err, size_t size) {
+        if (!err) {
+            write_buf_.retrieve(write_buf_.readableBytes());
+            {
+                std::lock_guard<std::mutex> guard(this->mutex_);
+                if (this->unsend_queue_.empty()) return;
+            }
+            write();
+        } else {
+            std::cout << "write errer :" << err.message() << std::endl;
+            return;
+        }
+    });
+}
+
+void Session::connect(const string &ip, int port) {
+    // asio::ip::tcp::resolver resolver(loop_->ios());
+    // auto ep = resolver.resolve(ip, std::to_string(port));
+    asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
+    auto self(shared_from_this());
+    socket_.async_connect(ep, [self, this](const asio::error_code &err, asio::ip::tcp::endpoint ep) {
+        if (!err) {
+            start();
+        } else {
+            return;
+        }
+    });
+}
+
+void Session::close() {
+    auto self(shared_from_this());
+    loop_->runInLoop([this, self]() { socket_.close(); });
 }

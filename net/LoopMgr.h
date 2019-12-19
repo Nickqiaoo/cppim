@@ -10,7 +10,7 @@ class LoopMgr{
     ~LoopMgr();
 
     void start();
-    void destory();
+    void stop();
     LoopPtr findNextLoop();
     private:
     std::mutex mutex_;

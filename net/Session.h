@@ -19,7 +19,7 @@ class Session : public std::enable_shared_from_this<Session> {
         messagecallback_ = cb;
     }
     void send(BufferPtr buffer);
-
+    void connect(const string& ip, int port);
   private:
     void read();
     void write();

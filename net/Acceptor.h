@@ -8,8 +8,8 @@ class Acceptor {
     explicit Acceptor(const LoopPtr& loop, const std::string& ip, int port);
     ~Acceptor();
 
-    bool start();
-    bool stop();
+    void start();
+    void close();
     void setNewSessionCallback(const NewSessionCallback& cb){
       newSessionCallback_ = cb;
     }
@@ -17,7 +17,6 @@ class Acceptor {
   private:
     void listen();
     void accept();
-    void close();
 
   private:
     LoopPtr loop_;
