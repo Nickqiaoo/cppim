@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Loop.h"
 
-Session::Session(LoopPtr loop, uint64_t id) : loop_(loop), id_(id), socket_(loop->ios()) {}
+Session::Session(LoopPtr loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()) {}
 Session::~Session() {}
 
 void Session::start() {
@@ -79,11 +79,11 @@ void Session::write() {
 }
 
 void Session::connect(const string &ip, int port) {
-    // asio::ip::tcp::resolver resolver(loop_->ios());
-    // auto ep = resolver.resolve(ip, std::to_string(port));
-    asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
+    asio::ip::tcp::resolver resolver(loop_->ios());
+    auto ep = resolver.resolve(ip, std::to_string(port)).begin();
+    // asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
     auto self(shared_from_this());
-    socket_.async_connect(ep, [self, this](const asio::error_code &err, asio::ip::tcp::endpoint ep) {
+    socket_.async_connect(*ep, [self, this](const asio::error_code &err) {
         if (!err) {
             start();
         } else {

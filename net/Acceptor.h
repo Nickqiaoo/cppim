@@ -20,8 +20,8 @@ class Acceptor {
 
   private:
     LoopPtr loop_;
-    asio::ip::tcp::acceptor acceptor_;
     std::string ip_;
     int port_;
+    asio::ip::tcp::acceptor acceptor_;
     NewSessionCallback newSessionCallback_;
 };

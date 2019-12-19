@@ -5,7 +5,7 @@ Loop::Loop() {
     work_ = std::make_shared<asio::io_service::work>(*ios_);
 }
 Loop::~Loop() {}
-void Loop::start() { thread_ = std::move(std::thread(&Loop::run, this)); }
+void Loop::start() { thread_ = std::thread(&Loop::run, this); }
 void Loop::run() { ios_->run(); }
 void Loop::stop() {
     ios_->stop();

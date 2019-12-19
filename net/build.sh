@@ -1,1 +1,1 @@
-g++ -o tcpserver main.cc Acceptor.cc Loop.cc LoopMgr.cc Session.cc TcpServer.cc -std=c++11 -lpthread -fsanitize=address -fno-omit-frame-pointer -g -Wall
+g++ -o tcpserver main.cc Acceptor.cc Loop.cc LoopMgr.cc Session.cc TcpServer.cc  -std=c++11 -lpthread -fsanitize=address -fno-omit-frame-pointer -g -Wall
