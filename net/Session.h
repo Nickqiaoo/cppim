@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <mutex>
 
 #include "../Buffer.h"
 #include "net_define.h"
@@ -17,17 +18,20 @@ class Session : public std::enable_shared_from_this<Session> {
     void setMessageCallback(const onMessageCallback& cb){
         messagecallback_ = cb;
     }
+    void send(BufferPtr buffer);
 
   private:
     void read();
-    void send();
+    void write();
+    void close();
   private:
     uint64_t id_;
+    std::mutex mutex_;
     LoopPtr loop_;
-    Buffer readbuf_;
-    Buffer writebuf_;
+    Buffer read_buf_;
+    Buffer write_buf_;
     asio::ip::tcp::socket socket_;
-    std::vector<BufferPtr> unsend_buf_;
-    std::vector<BufferPtr> tmp_buf_;
+    std::vector<BufferPtr> unsend_queue_;
+    std::vector<BufferPtr> tmp_queue_;
     onMessageCallback messagecallback_;
 };
