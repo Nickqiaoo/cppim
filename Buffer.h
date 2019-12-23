@@ -186,7 +186,138 @@ class Buffer
     assert(len <= readableBytes());
     writerIndex_ -= len;
   }
+  ///
+  /// Append int64_t using network endian
+  ///
+  void appendInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    append(&be64, sizeof be64);
+  }
 
+  ///
+  /// Append int32_t using network endian
+  ///
+  void appendInt32(int32_t x)
+  {
+    int32_t be32 = sockets::hostToNetwork32(x);
+    append(&be32, sizeof be32);
+  }
+
+  void appendInt16(int16_t x)
+  {
+    int16_t be16 = sockets::hostToNetwork16(x);
+    append(&be16, sizeof be16);
+  }
+
+  void appendInt8(int8_t x)
+  {
+    append(&x, sizeof x);
+  }
+
+  ///
+  /// Read int64_t from network endian
+  ///
+  /// Require: buf->readableBytes() >= sizeof(int32_t)
+  int64_t readInt64()
+  {
+    int64_t result = peekInt64();
+    retrieveInt64();
+    return result;
+  }
+
+  ///
+  /// Read int32_t from network endian
+  ///
+  /// Require: buf->readableBytes() >= sizeof(int32_t)
+  int32_t readInt32()
+  {
+    int32_t result = peekInt32();
+    retrieveInt32();
+    return result;
+  }
+
+  int16_t readInt16()
+  {
+    int16_t result = peekInt16();
+    retrieveInt16();
+    return result;
+  }
+
+  int8_t readInt8()
+  {
+    int8_t result = peekInt8();
+    retrieveInt8();
+    return result;
+  }
+
+  ///
+  /// Peek int64_t from network endian
+  ///
+  /// Require: buf->readableBytes() >= sizeof(int64_t)
+  int64_t peekInt64() const
+  {
+    assert(readableBytes() >= sizeof(int64_t));
+    int64_t be64 = 0;
+    ::memcpy(&be64, peek(), sizeof be64);
+    return sockets::networkToHost64(be64);
+  }
+
+  ///
+  /// Peek int32_t from network endian
+  ///
+  /// Require: buf->readableBytes() >= sizeof(int32_t)
+  int32_t peekInt32() const
+  {
+    assert(readableBytes() >= sizeof(int32_t));
+    int32_t be32 = 0;
+    ::memcpy(&be32, peek(), sizeof be32);
+    return sockets::networkToHost32(be32);
+  }
+
+  int16_t peekInt16() const
+  {
+    assert(readableBytes() >= sizeof(int16_t));
+    int16_t be16 = 0;
+    ::memcpy(&be16, peek(), sizeof be16);
+    return sockets::networkToHost16(be16);
+  }
+
+  int8_t peekInt8() const
+  {
+    assert(readableBytes() >= sizeof(int8_t));
+    int8_t x = *peek();
+    return x;
+  }
+
+  ///
+  /// Prepend int64_t using network endian
+  ///
+  void prependInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    prepend(&be64, sizeof be64);
+  }
+
+  ///
+  /// Prepend int32_t using network endian
+  ///
+  void prependInt32(int32_t x)
+  {
+    int32_t be32 = sockets::hostToNetwork32(x);
+    prepend(&be32, sizeof be32);
+  }
+
+  void prependInt16(int16_t x)
+  {
+    int16_t be16 = sockets::hostToNetwork16(x);
+    prepend(&be16, sizeof be16);
+  }
+
+  void prependInt8(int8_t x)
+  {
+    prepend(&x, sizeof x);
+  }
   void prepend(const void* /*restrict*/ data, size_t len)
   {
     assert(len <= prependableBytes());

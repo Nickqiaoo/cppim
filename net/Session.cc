@@ -79,11 +79,11 @@ void Session::write() {
 }
 
 void Session::connect(const string &ip, int port) {
-    asio::ip::tcp::resolver resolver(loop_->ios());
-    auto ep = resolver.resolve(ip, std::to_string(port)).begin();
-    // asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
+    //asio::ip::tcp::resolver resolver(loop_->ios());
+    //auto ep = resolver.resolve(ip, std::to_string(port)).begin();
+    asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
     auto self(shared_from_this());
-    socket_.async_connect(*ep, [self, this](const asio::error_code &err) {
+    socket_.async_connect(ep, [self, this](const asio::error_code &err) {
         if (!err) {
             start();
         } else {
