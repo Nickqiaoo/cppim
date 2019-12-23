@@ -1,13 +1,3 @@
-// Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
-//
-// Use of this source code is governed by a BSD-style license
-// that can be found in the License file.
-
-// Author: Shuo Chen (chenshuo at chenshuo dot com)
-//
-// This is a public header file, it must only include public header files.
-
 #pragma once;
 
 #include "RpcCodec.h"
@@ -71,10 +61,7 @@ class Service;
 }  // namespace google
 
 
-namespace muduo
-{
-namespace net
-{
+typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
 // Abstract interface for an RPC channel.  An RpcChannel represents a
 // communication line to a Service which can be used to call that Service's
@@ -90,11 +77,11 @@ class RpcChannel : public ::google::protobuf::RpcChannel
  public:
   RpcChannel();
 
-  explicit RpcChannel(const TcpConnectionPtr& conn);
+  explicit RpcChannel(const SessionPtr& conn);
 
   ~RpcChannel() override;
 
-  void setConnection(const TcpConnectionPtr& conn)
+  void setConnection(const SessionPtr& conn)
   {
     conn_ = conn;
   }
@@ -115,14 +102,12 @@ class RpcChannel : public ::google::protobuf::RpcChannel
                   ::google::protobuf::Message* response,
                   ::google::protobuf::Closure* done) override;
 
-  void onMessage(const TcpConnectionPtr& conn,
-                 Buffer* buf,
-                 Timestamp receiveTime);
+  void onMessage(const SessionPtr& conn,
+                 Buffer* buf);
 
  private:
-  void onRpcMessage(const TcpConnectionPtr& conn,
-                    const RpcMessagePtr& messagePtr,
-                    Timestamp receiveTime);
+  void onRpcMessage(const SessionPtr& conn,
+                    const MessagePtr& messagePtr);
 
   void doneCallback(::google::protobuf::Message* response, int64_t id);
 
@@ -133,16 +118,12 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   };
 
   RpcCodec codec_;
-  TcpConnectionPtr conn_;
-  AtomicInt64 id_;
+  SessionPtr conn_;
+  std::atomic<int64_t> id_;
 
-  MutexLock mutex_;
-  std::map<int64_t, OutstandingCall> outstandings_ GUARDED_BY(mutex_);
+  std::mutex mutex_;
+  std::map<int64_t, OutstandingCall> outstandings_;
 
   const std::map<std::string, ::google::protobuf::Service*>* services_;
 };
 typedef std::shared_ptr<RpcChannel> RpcChannelPtr;
-
-}  // namespace net
-}  // namespace muduo
-

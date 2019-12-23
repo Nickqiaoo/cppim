@@ -1,11 +1,3 @@
-// Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
-//
-// Use of this source code is governed by a BSD-style license
-// that can be found in the License file.
-
-// Author: Shuo Chen (chenshuo at chenshuo dot com)
-
 #include "RpcChannel.h"
 #include <functional>
 
@@ -21,7 +13,7 @@ RpcChannel::RpcChannel()
 {
 }
 
-RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
+RpcChannel::RpcChannel(const SessionPtr& conn)
   : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
     conn_(conn),
     services_(NULL)
@@ -65,16 +57,14 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
   codec_.send(conn_, message);
 }
 
-void RpcChannel::onMessage(const TcpConnectionPtr& conn,
-                           Buffer* buf,
-                           Timestamp receiveTime)
+void RpcChannel::onMessage(const SessionPtr& conn,
+                           Buffer* buf)
 {
-  codec_.onMessage(conn, buf, receiveTime);
+  codec_.onMessage(conn, buf);
 }
 
-void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
-                              const RpcMessagePtr& messagePtr,
-                              Timestamp receiveTime)
+void RpcChannel::onRpcMessage(const SessionPtr& conn,
+                              const RpcMessagePtr& messagePtr)
 {
   assert(conn == conn_);
   //printf("%s\n", message.DebugString().c_str());

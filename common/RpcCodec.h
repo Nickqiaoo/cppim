@@ -10,11 +10,10 @@
 namespace common {
 
 //  int32_t len
-//  uint64_t id
-//  char    type
+//  uint64_t id   the highest bit: 0 request, 1 response
 //  int32_t namelen
 //  char    service:method[namelen]
-//  char    protobuf[len-namelen-9]
+//  char    protobuf[len-namelen-16]
 
 typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
@@ -62,7 +61,8 @@ class ProtobufCodec {
     ErrorCallback errorCallback_;
 
     const static int kHeaderLen = sizeof(int32_t);
-    const static int kMinMessageLen = 2*kHeaderLen + 2; // nameLen + typeName + checkSum
+    const static int kIdLen = sizeof(uint64_t);
+    const static int kMinMessageLen = kIdLen + kHeaderLen + 3; // IdLen + nameLen + typeName
     const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimi
 };
 

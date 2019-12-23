@@ -61,6 +61,12 @@ int32_t asInt32(const char* buf) {
     return sockets::networkToHost32(be32);
 }
 
+uint64_t asUInt64(const char* buf) {
+    uint64_t be64 = 0;
+    ::memcpy(&be64, buf, sizeof(be64));
+    return sockets::networkToHost64(be64);
+}
+
 void ProtobufCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
     while (buf->readableBytes() >= kMinMessageLen + kHeaderLen) {
         const int32_t len = buf->peekInt32();
@@ -99,15 +105,16 @@ MessagePtr ProtobufCodec::parse(const char* buf, int len, ErrorCode* error) {
     MessagePtr message;
 
     // get message type name
-    int32_t nameLen = asInt32(buf);
+    uint64_t id = asUInt64(buf);
+    int32_t nameLen = asInt32(buf + 8);
     if (nameLen >= 2 && nameLen <= len - 2 * kHeaderLen) {
-        std::string typeName(buf + kHeaderLen, buf + kHeaderLen + nameLen - 1);
+        std::string typeName(buf + kHeaderLen + kIdLen, buf + kHeaderLen + kIdLen + nameLen - 1);
         // create message object
         message.reset(createMessage(typeName));
         if (message) {
             // parse from buffer
-            const char* data = buf + kHeaderLen + nameLen;
-            int32_t dataLen = len - nameLen - 2 * kHeaderLen;
+            const char* data = buf + kHeaderLen + kIdLen + nameLen;
+            int32_t dataLen = len - nameLen - 2 * kHeaderLen - kIdLen;
             if (message->ParseFromArray(data, dataLen)) {
                 *error = kNoError;
             } else {
