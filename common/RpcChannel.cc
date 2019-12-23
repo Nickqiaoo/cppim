@@ -4,8 +4,6 @@
 
 #include <google/protobuf/descriptor.h>
 
-using namespace muduo;
-using namespace muduo::net;
 
 RpcChannel::RpcChannel()
   : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
@@ -64,7 +62,7 @@ void RpcChannel::onMessage(const SessionPtr& conn,
 }
 
 void RpcChannel::onRpcMessage(const SessionPtr& conn,
-                              const RpcMessagePtr& messagePtr)
+                              const MessagePtr& messagePtr)
 {
   assert(conn == conn_);
   //printf("%s\n", message.DebugString().c_str());
