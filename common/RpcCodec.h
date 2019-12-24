@@ -17,10 +17,7 @@ namespace common {
 
 typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
-//
-// FIXME: merge with RpcCodec
-//
-class ProtobufCodec {
+class RpcCodec {
    public:
     enum ErrorCode {
         kNoError = 0,
@@ -31,17 +28,17 @@ class ProtobufCodec {
         kParseError,
     };
 
-    typedef std::function<void(const SessionPtr&, const MessagePtr&)> ProtobufMessageCallback;
+    typedef std::function<void(bool, uint64_t, const std::string&, const std::string&, const SessionPtr&, const MessagePtr&)> ProtobufMessageCallback;
 
     typedef std::function<void(const SessionPtr&, BufferPtr, ErrorCode)> ErrorCallback;
 
-    explicit ProtobufCodec(const ProtobufMessageCallback& messageCb) : messageCallback_(messageCb), errorCallback_(defaultErrorCallback) {}
+    explicit RpcCodec(const ProtobufMessageCallback& messageCb) : messageCallback_(messageCb), errorCallback_(defaultErrorCallback) {}
 
-    ProtobufCodec(const ProtobufMessageCallback& messageCb, const ErrorCallback& errorCb) : messageCallback_(messageCb), errorCallback_(errorCb) {}
+    RpcCodec(const ProtobufMessageCallback& messageCb, const ErrorCallback& errorCb) : messageCallback_(messageCb), errorCallback_(errorCb) {}
 
     void onMessage(const SessionPtr& conn, BufferPtr buf);
 
-    void send(const SessionPtr& conn, const google::protobuf::Message& message) {
+    void send(uint64_t id, const std::string& name, const SessionPtr& conn, const google::protobuf::Message& message) {
         // FIXME: serialize to TcpConnection::outputBuffer()
         //Buffer buf;
         auto buf = std::make_shared<Buffer>();

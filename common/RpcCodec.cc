@@ -3,7 +3,7 @@
 
 namespace common {
 
-void ProtobufCodec::fillEmptyBuffer(BufferPtr buf, const google::protobuf::Message& message) {
+void RpcCodec::fillEmptyBuffer(BufferPtr buf, const google::protobuf::Message& message) {
     // buf->retrieveAll();
     assert(buf->readableBytes() == 0);
 
@@ -23,7 +23,6 @@ void ProtobufCodec::fillEmptyBuffer(BufferPtr buf, const google::protobuf::Messa
     buf->prepend(&len, sizeof len);
 }
 
-
 namespace {
 const string kNoErrorStr = "NoError";
 const string kInvalidLengthStr = "InvalidLength";
@@ -34,7 +33,7 @@ const string kParseErrorStr = "ParseError";
 const string kUnknownErrorStr = "UnknownError";
 }  // namespace
 
-const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode) {
+const string& RpcCodec::errorCodeToString(ErrorCode errorCode) {
     switch (errorCode) {
         case kNoError:
             return kNoErrorStr;
@@ -53,7 +52,7 @@ const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode) {
     }
 }
 
-void ProtobufCodec::defaultErrorCallback(const SessionPtr& conn, BufferPtr buf, ErrorCode errorCode) {}
+void RpcCodec::defaultErrorCallback(const SessionPtr& conn, BufferPtr buf, ErrorCode errorCode) {}
 
 int32_t asInt32(const char* buf) {
     int32_t be32 = 0;
@@ -67,17 +66,50 @@ uint64_t asUInt64(const char* buf) {
     return sockets::networkToHost64(be64);
 }
 
-void ProtobufCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
+void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
     while (buf->readableBytes() >= kMinMessageLen + kHeaderLen) {
         const int32_t len = buf->peekInt32();
         if (len > kMaxMessageLen || len < kMinMessageLen) {
             errorCallback_(conn, buf, kInvalidLength);
             break;
         } else if (buf->readableBytes() >= static_cast<size_t>(len + kHeaderLen)) {
+            MessagePtr message;
             ErrorCode errorCode = kNoError;
-            MessagePtr message = parse(buf->peek() + kHeaderLen, len, &errorCode);
+            const char* idstart = buf->peek() + kHeaderLen;
+            uint64_t id = asUInt64(idstart);
+            bool isresponse = id >> 63;
+            id = id & 0x7fffffffffffffff;
+            int32_t nameLen = asInt32(idstart + kIdLen);
+            std::string service, method;
+            if (nameLen >= 3 && nameLen <= len - 2 * kHeaderLen) {
+                std::string typeName(idstart + kHeaderLen + kIdLen, idstart + kHeaderLen + kIdLen + nameLen);
+                auto pos = typeName.find(':');
+                if (pos != std::string::npos) {
+                    service = typeName.substr(0, pos);
+                    method = typeName.substr(pos);
+                    // create message object
+                    message.reset(createMessage(typeName));
+                    if (message) {
+                        // parse from buffer
+                        const char* data = idstart + kHeaderLen + kIdLen + nameLen;
+                        int32_t dataLen = len - nameLen - 2 * kHeaderLen - kIdLen;
+                        if (message->ParseFromArray(data, dataLen)) {
+                            errorCode = kNoError;
+                        } else {
+                            errorCode = kParseError;
+                        }
+                    } else {
+                        errorCode = kUnknownMessageType;
+                    }
+                } else {
+                    errorCode = kInvalidNameLen;
+                }
+            } else {
+                errorCode = kInvalidNameLen;
+            }
+
             if (errorCode == kNoError && message) {
-                messageCallback_(conn, message );
+                messageCallback_(isresponse, id, service, method, conn, message);
                 buf->retrieve(kHeaderLen + len);
             } else {
                 errorCallback_(conn, buf, errorCode);
@@ -89,7 +121,7 @@ void ProtobufCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
     }
 }
 
-google::protobuf::Message* ProtobufCodec::createMessage(const std::string& typeName) {
+google::protobuf::Message* RpcCodec::createMessage(const std::string& typeName) {
     google::protobuf::Message* message = NULL;
     const google::protobuf::Descriptor* descriptor = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
     if (descriptor) {
@@ -101,7 +133,7 @@ google::protobuf::Message* ProtobufCodec::createMessage(const std::string& typeN
     return message;
 }
 
-MessagePtr ProtobufCodec::parse(const char* buf, int len, ErrorCode* error) {
+MessagePtr RpcCodec::parse(const char* buf, int len, ErrorCode* error) {
     MessagePtr message;
 
     // get message type name

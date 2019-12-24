@@ -74,6 +74,14 @@ typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 //   service->MyMethod(request, &response, callback);
 class RpcChannel : public ::google::protobuf::RpcChannel
 {
+  enum ErrorCode {
+        NO_ERROR = 0,
+        WRONG_PROTO,
+        INVALID_REQUEST,
+        NO_METHOD,
+        NO_SERVICE,
+        kParseError,
+    };
  public:
   RpcChannel();
 
@@ -103,13 +111,13 @@ class RpcChannel : public ::google::protobuf::RpcChannel
                   ::google::protobuf::Closure* done) override;
 
   void onMessage(const SessionPtr& conn,
-                 Buffer* buf);
+                 BufferPtr buf);
 
  private:
-  void onRpcMessage(const SessionPtr& conn,
+  void onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
                     const MessagePtr& messagePtr);
 
-  void doneCallback(::google::protobuf::Message* response, int64_t id);
+  void doneCallback(::google::protobuf::Message* response, const string name, uint64_t id);
 
   struct OutstandingCall
   {
@@ -117,12 +125,12 @@ class RpcChannel : public ::google::protobuf::RpcChannel
     ::google::protobuf::Closure* done;
   };
 
-  RpcCodec codec_;
+  common::RpcCodec codec_;
   SessionPtr conn_;
   std::atomic<int64_t> id_;
 
   std::mutex mutex_;
-  std::map<int64_t, OutstandingCall> outstandings_;
+  std::map<uint64_t, OutstandingCall> outstandings_;
 
   const std::map<std::string, ::google::protobuf::Service*>* services_;
 };
