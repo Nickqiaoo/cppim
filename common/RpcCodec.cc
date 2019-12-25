@@ -3,14 +3,14 @@
 
 namespace common {
 
-void RpcCodec::fillEmptyBuffer(BufferPtr buf, const google::protobuf::Message& message) {
+void RpcCodec::fillEmptyBuffer(BufferPtr buf, const google::protobuf::Message& message, uint64_t id, const std::string& name) {
     // buf->retrieveAll();
     assert(buf->readableBytes() == 0);
 
-    const std::string& typeName = message.GetTypeName();
-    int32_t nameLen = static_cast<int32_t>(typeName.size() + 1);
+    buf->appendInt64(id);
+    int32_t nameLen = static_cast<int32_t>(name.size() + 1);
     buf->appendInt32(nameLen);
-    buf->append(typeName.c_str(), nameLen);
+    buf->append(name.c_str(), nameLen);
 
     int byte_size = message.ByteSize();
     buf->ensureWritableBytes(byte_size);
@@ -82,7 +82,7 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
             int32_t nameLen = asInt32(idstart + kIdLen);
             std::string service, method;
             if (nameLen >= 3 && nameLen <= len - 2 * kHeaderLen) {
-                std::string typeName(idstart + kHeaderLen + kIdLen, idstart + kHeaderLen + kIdLen + nameLen);
+                std::string typeName(idstart + kHeaderLen + kIdLen, idstart + kHeaderLen + kIdLen + nameLen + 1);
                 auto pos = typeName.find(':');
                 if (pos != std::string::npos) {
                     service = typeName.substr(0, pos);
@@ -121,6 +121,7 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
     }
 }
 
+/*
 google::protobuf::Message* RpcCodec::createMessage(const std::string& typeName) {
     google::protobuf::Message* message = NULL;
     const google::protobuf::Descriptor* descriptor = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
@@ -161,4 +162,6 @@ MessagePtr RpcCodec::parse(const char* buf, int len, ErrorCode* error) {
 
     return message;
 }
+*/
+
 }  // namespace common

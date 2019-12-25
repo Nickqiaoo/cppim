@@ -42,12 +42,12 @@ class RpcCodec {
         // FIXME: serialize to TcpConnection::outputBuffer()
         //Buffer buf;
         auto buf = std::make_shared<Buffer>();
-        fillEmptyBuffer(buf, message);
+        fillEmptyBuffer(buf, message, id, name);
         conn->send(buf);
     }
 
     static const std::string& errorCodeToString(ErrorCode errorCode);
-    static void fillEmptyBuffer(BufferPtr buf, const google::protobuf::Message& message);
+    static void fillEmptyBuffer(BufferPtr buf, const google::protobuf::Message& message, uint64_t id, const std::string& name);
     static google::protobuf::Message* createMessage(const std::string& type_name);
     static MessagePtr parse(const char* buf, int len, ErrorCode* errorCode);
 

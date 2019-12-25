@@ -6,6 +6,7 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/service.h>
 
+using namespace std::placeholders;
 
 RpcServer::RpcServer(int thrnum, const std::string& ip, int port)
   : server_(thrnum, ip, port)
@@ -29,19 +30,11 @@ void RpcServer::start()
 
 void RpcServer::onConnection(const SessionPtr& conn)
 {
-  if (conn->connected())
-  {
     RpcChannelPtr channel(new RpcChannel(conn));
     channel->setServices(&services_);
     conn->setMessageCallback(
-        std::bind(&RpcChannel::onMessage, get_pointer(channel), _1, _2, _3));
-    conn->setContext(channel);
-  }
-  else
-  {
-    conn->setContext(RpcChannelPtr());
-    // FIXME:
-  }
+        std::bind(&RpcChannel::onMessage, channel.get(), _1, _2));
+    //conn->setContext(channel);
 }
 
 // void RpcServer::onMessage(const TcpConnectionPtr& conn,

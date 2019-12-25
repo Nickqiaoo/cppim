@@ -76,8 +76,9 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
                         request->CopyFrom(*messagePtr); 
                         google::protobuf::Message* response = service->GetResponsePrototype(method).New();
                         // response is deleted in doneCallback
-                        std::string name = servicename + ":" + methodname;
-                        service->CallMethod(method, NULL, request.get(), response, NewCallback(this, &RpcChannel::doneCallback, response, name, id));
+                        // TODO modify closure
+                        std::string name = servicename + ":" + methodname + ":" + std::to_string(id);
+                        service->CallMethod(method, NULL, request.get(), response, NewCallback(this, &RpcChannel::doneCallback, response, name));
                         error = NO_ERROR;
                 } else {
                     error = NO_METHOD;
@@ -98,8 +99,14 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
     }
 }
 
-void RpcChannel::doneCallback(::google::protobuf::Message* response, const string name, uint64_t id) {
+void RpcChannel::doneCallback(::google::protobuf::Message* response, string name) {
     std::unique_ptr<google::protobuf::Message> d(response);
-    id = id | 0x8000000000000000;
-    codec_.send(id, name, conn_, *response);
+    auto pos = name.find_last_of(':');
+    if(pos != std::string::npos){
+        uint64_t id = std::strtoull(name.substr(pos).c_str(),nullptr,0);
+        name = name.substr(0, pos);
+        id = id | 0x8000000000000000;
+        codec_.send(id, name, conn_, *response);
+    }
+    
 }

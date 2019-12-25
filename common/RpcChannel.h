@@ -117,7 +117,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   void onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
                     const MessagePtr& messagePtr);
 
-  void doneCallback(::google::protobuf::Message* response, const string name, uint64_t id);
+  void doneCallback(::google::protobuf::Message* response, string name);
 
   struct OutstandingCall
   {
