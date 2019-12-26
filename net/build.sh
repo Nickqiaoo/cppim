@@ -1,1 +1,2 @@
-g++ -o tcpserver main.cc Acceptor.cc Loop.cc LoopMgr.cc Session.cc TcpServer.cc  -std=c++11 -lpthread -fsanitize=address -fno-omit-frame-pointer -g -Wall
+g++ -o tcpserver main.cc Acceptor.cc Loop.cc LoopMgr.cc Session.cc TcpServer.cc ../common/RpcChannel.cc ../common/RpcCodec.cc ../common/RpcServer.cc ../common/log.cpp \
+ -I ../common/ -I /mnt/c/project/asio/opt/spdlog/include/ -std=c++11 -lprotobuf -lpthread -fsanitize=address -fno-omit-frame-pointer -g -Wall

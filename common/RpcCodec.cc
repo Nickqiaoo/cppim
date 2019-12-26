@@ -1,5 +1,5 @@
 #include "RpcCodec.h"
-#include "endian.h"
+#include "EndianTransfer.h"
 
 namespace common {
 
@@ -73,7 +73,6 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
             errorCallback_(conn, buf, kInvalidLength);
             break;
         } else if (buf->readableBytes() >= static_cast<size_t>(len + kHeaderLen)) {
-            MessagePtr message;
             ErrorCode errorCode = kNoError;
             const char* idstart = buf->peek() + kHeaderLen;
             uint64_t id = asUInt64(idstart);
@@ -81,26 +80,16 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
             id = id & 0x7fffffffffffffff;
             int32_t nameLen = asInt32(idstart + kIdLen);
             std::string service, method;
+            const char* data;
+            int32_t datalen;
             if (nameLen >= 3 && nameLen <= len - 2 * kHeaderLen) {
                 std::string typeName(idstart + kHeaderLen + kIdLen, idstart + kHeaderLen + kIdLen + nameLen + 1);
                 auto pos = typeName.find(':');
                 if (pos != std::string::npos) {
                     service = typeName.substr(0, pos);
                     method = typeName.substr(pos);
-                    // create message object
-                    message.reset(createMessage(typeName));
-                    if (message) {
-                        // parse from buffer
-                        const char* data = idstart + kHeaderLen + kIdLen + nameLen;
-                        int32_t dataLen = len - nameLen - 2 * kHeaderLen - kIdLen;
-                        if (message->ParseFromArray(data, dataLen)) {
-                            errorCode = kNoError;
-                        } else {
-                            errorCode = kParseError;
-                        }
-                    } else {
-                        errorCode = kUnknownMessageType;
-                    }
+                    const char* data = idstart + kHeaderLen + kIdLen + nameLen;
+                    int32_t dataLen = len - nameLen - 2 * kHeaderLen - kIdLen;
                 } else {
                     errorCode = kInvalidNameLen;
                 }
@@ -108,8 +97,8 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
                 errorCode = kInvalidNameLen;
             }
 
-            if (errorCode == kNoError && message) {
-                messageCallback_(isresponse, id, service, method, conn, message);
+            if (errorCode == kNoError) {
+                messageCallback_(isresponse, id, service, method, conn, data, datalen);
                 buf->retrieve(kHeaderLen + len);
             } else {
                 errorCallback_(conn, buf, errorCode);
@@ -121,47 +110,5 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
     }
 }
 
-/*
-google::protobuf::Message* RpcCodec::createMessage(const std::string& typeName) {
-    google::protobuf::Message* message = NULL;
-    const google::protobuf::Descriptor* descriptor = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
-    if (descriptor) {
-        const google::protobuf::Message* prototype = google::protobuf::MessageFactory::generated_factory()->GetPrototype(descriptor);
-        if (prototype) {
-            message = prototype->New();
-        }
-    }
-    return message;
-}
-
-MessagePtr RpcCodec::parse(const char* buf, int len, ErrorCode* error) {
-    MessagePtr message;
-
-    // get message type name
-    uint64_t id = asUInt64(buf);
-    int32_t nameLen = asInt32(buf + 8);
-    if (nameLen >= 2 && nameLen <= len - 2 * kHeaderLen) {
-        std::string typeName(buf + kHeaderLen + kIdLen, buf + kHeaderLen + kIdLen + nameLen - 1);
-        // create message object
-        message.reset(createMessage(typeName));
-        if (message) {
-            // parse from buffer
-            const char* data = buf + kHeaderLen + kIdLen + nameLen;
-            int32_t dataLen = len - nameLen - 2 * kHeaderLen - kIdLen;
-            if (message->ParseFromArray(data, dataLen)) {
-                *error = kNoError;
-            } else {
-                *error = kParseError;
-            }
-        } else {
-            *error = kUnknownMessageType;
-        }
-    } else {
-        *error = kInvalidNameLen;
-    }
-
-    return message;
-}
-*/
 
 }  // namespace common

@@ -5,6 +5,8 @@
 
 #include <assert.h>
 #include <string.h>
+
+#include "./common/EndianTransfer.h"
 /// A buffer class modeled after org.jboss.netty.buffer.ChannelBuffer
 ///
 /// @code

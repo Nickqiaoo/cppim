@@ -5,10 +5,10 @@
 
 using namespace std::placeholders;
 
-RpcChannel::RpcChannel() : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3, _4, _5, _6)), services_(NULL) {}
+RpcChannel::RpcChannel() : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3, _4, _5, _6, _7)), services_(NULL) {}
 
 RpcChannel::RpcChannel(const SessionPtr& conn)
-    : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3, _4, _5, _6)), conn_(conn), services_(NULL) {}
+    : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3, _4, _5, _6, _7)), conn_(conn), services_(NULL) {}
 
 RpcChannel::~RpcChannel() {
     for (const auto& outstanding : outstandings_) {
@@ -39,7 +39,7 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method, 
 void RpcChannel::onMessage(const SessionPtr& conn, BufferPtr buf) { codec_.onMessage(conn, buf); }
 
 void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
-                              const MessagePtr& messagePtr) {
+                              const char* data, int32_t datalen) {
     assert(conn == conn_);
     // printf("%s\n", message.DebugString().c_str());
     if (isresponse) {
@@ -56,9 +56,10 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
 
         if (out.response) {
             std::unique_ptr<google::protobuf::Message> d(out.response);
-            out.response->CopyFrom(*messagePtr);
-            if (out.done) {
-                out.done->Run();
+            if (out.response->ParseFromArray(data, datalen)) {
+                if (out.done) {
+                    out.done->Run();
+                }
             }
         }
     } else {  // request
@@ -73,13 +74,16 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
                 const google::protobuf::MethodDescriptor* method = desc->FindMethodByName(methodname);
                 if (method) {
                     std::unique_ptr<google::protobuf::Message> request(service->GetRequestPrototype(method).New());
-                        request->CopyFrom(*messagePtr); 
+                    if (request->ParseFromArray(data, datalen)) {
                         google::protobuf::Message* response = service->GetResponsePrototype(method).New();
                         // response is deleted in doneCallback
                         // TODO modify closure
                         std::string name = servicename + ":" + methodname + ":" + std::to_string(id);
                         service->CallMethod(method, NULL, request.get(), response, NewCallback(this, &RpcChannel::doneCallback, response, name));
                         error = NO_ERROR;
+                    }else{
+                        error = PARSE_ERROR;
+                    }
                 } else {
                     error = NO_METHOD;
                 }
@@ -90,11 +94,11 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
             error = NO_SERVICE;
         }
         if (error != NO_ERROR) {
-            //RpcMessage response;
-            //response.set_type(RESPONSE);
-            //response.set_id(message.id());
-            //response.set_error(error);
-            //codec_.send(conn_, response);
+            // RpcMessage response;
+            // response.set_type(RESPONSE);
+            // response.set_id(message.id());
+            // response.set_error(error);
+            // codec_.send(conn_, response);
         }
     }
 }
@@ -102,11 +106,10 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
 void RpcChannel::doneCallback(::google::protobuf::Message* response, string name) {
     std::unique_ptr<google::protobuf::Message> d(response);
     auto pos = name.find_last_of(':');
-    if(pos != std::string::npos){
-        uint64_t id = std::strtoull(name.substr(pos).c_str(),nullptr,0);
+    if (pos != std::string::npos) {
+        uint64_t id = std::strtoull(name.substr(pos).c_str(), nullptr, 0);
         name = name.substr(0, pos);
         id = id | 0x8000000000000000;
         codec_.send(id, name, conn_, *response);
     }
-    
 }

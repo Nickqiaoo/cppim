@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "RpcCodec.h"
 
@@ -80,7 +80,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
         INVALID_REQUEST,
         NO_METHOD,
         NO_SERVICE,
-        kParseError,
+        PARSE_ERROR,
     };
  public:
   RpcChannel();
@@ -115,7 +115,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
  private:
   void onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
-                    const MessagePtr& messagePtr);
+                    const char* data, int32_t datalen);
 
   void doneCallback(::google::protobuf::Message* response, string name);
 

@@ -1,10 +1,10 @@
-#pragma once;
+#pragma once
 
 #include <google/protobuf/message.h>
 #include <functional>
 
-#include "net_define.h"
-#include "Session.h"
+#include "../net/net_define.h"
+#include "../net/Session.h"
 
 
 namespace common {
@@ -28,7 +28,7 @@ class RpcCodec {
         kParseError,
     };
 
-    typedef std::function<void(bool, uint64_t, const std::string&, const std::string&, const SessionPtr&, const MessagePtr&)> ProtobufMessageCallback;
+    typedef std::function<void(bool, uint64_t, const std::string&, const std::string&, const SessionPtr&, const char*, int32_t)> ProtobufMessageCallback;
 
     typedef std::function<void(const SessionPtr&, BufferPtr, ErrorCode)> ErrorCallback;
 

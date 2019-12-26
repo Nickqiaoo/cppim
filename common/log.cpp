@@ -3,10 +3,11 @@
  * All rights reserved.
  */
 
-#include "common/log.h"
+#include "log.h"
 
-#include "common/hourly_file_sink.h"
+//#include "hourly_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/sinks/daily_file_sink.h"
 
 namespace common {
 
@@ -33,11 +34,15 @@ void Log::Init(const std::string& log_name, const std::string& log_path,
     stdout_sink->set_pattern("[%Y-%m-%d %H:%M:%S] [%n] [%^%L%$] %v");
     sinks.push_back(stdout_sink);
   }
-
+/*
   auto hourly_file_sink =
       std::make_shared<spdlog::sinks::hourly_file_sink_mt>(log_path);
   hourly_file_sink->set_pattern("[%Y-%m-%d %H:%M:%S] [%n] [%^%L%$] %v");
-  sinks.push_back(hourly_file_sink);
+  */
+  auto daily_file_sink =
+      std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path, 1, 0);
+  daily_file_sink->set_pattern("[%Y-%m-%d %H:%M:%S] [%n] [%^%L%$] %v");
+  sinks.push_back(daily_file_sink);
 
   auto logger = std::make_shared<spdlog::async_logger>(
       log_name, begin(sinks), end(sinks), spdlog::thread_pool());

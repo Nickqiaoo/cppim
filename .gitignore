@@ -6,3 +6,4 @@ tcpserver
 build
 http*
 tcpserver*
+log*
