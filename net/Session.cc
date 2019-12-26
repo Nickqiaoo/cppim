@@ -10,6 +10,7 @@ void Session::start() {
     asio::ip::tcp::no_delay nodelay(true);
     socket_.set_option(nodelay);
     socket_.set_option(asio::socket_base::keep_alive(true));
+    connectioncallback_(shared_from_this());
     read();
 }
 
@@ -19,12 +20,8 @@ void Session::read() {
         if (!err) {
             // std::cout << "recieve data" << std::endl;
             read_buf_.hasWritten(size);
-            // messagecallback_(self, &read_buf_);
-            // write_buf_.append(read_buf_.peek(),
-            // read_buf_.readableBytes());
-            // read_buf_.retrieve(read_buf_.readableBytes());
-            send(std::make_shared<Buffer>(read_buf_));
-            read_buf_.retrieveAll();
+            messagecallback_(self, std::make_shared<Buffer>(read_buf_));
+            read_buf_.retrieve(size);
             read();
         } else {
             std::cout << "read errer :" << err.message() << std::endl;

@@ -88,8 +88,8 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
                 if (pos != std::string::npos) {
                     service = typeName.substr(0, pos);
                     method = typeName.substr(pos);
-                    const char* data = idstart + kHeaderLen + kIdLen + nameLen;
-                    int32_t dataLen = len - nameLen - 2 * kHeaderLen - kIdLen;
+                    data = idstart + kHeaderLen + kIdLen + nameLen;
+                    datalen = len - nameLen - 2 * kHeaderLen - kIdLen;
                 } else {
                     errorCode = kInvalidNameLen;
                 }
