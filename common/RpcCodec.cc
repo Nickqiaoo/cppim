@@ -1,5 +1,6 @@
 #include "RpcCodec.h"
 #include "EndianTransfer.h"
+#include "log.h"
 
 namespace common {
 
@@ -52,7 +53,9 @@ const string& RpcCodec::errorCodeToString(ErrorCode errorCode) {
     }
 }
 
-void RpcCodec::defaultErrorCallback(const SessionPtr& conn, BufferPtr buf, ErrorCode errorCode) {}
+void RpcCodec::defaultErrorCallback(const SessionPtr& conn, BufferPtr buf, ErrorCode errorCode) {
+    LOG_INFO("parse message error");
+}
 
 int32_t asInt32(const char* buf) {
     int32_t be32 = 0;
@@ -83,13 +86,13 @@ void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
             const char* data;
             int32_t datalen;
             if (nameLen >= 3 && nameLen <= len - 2 * kHeaderLen) {
-                std::string typeName(idstart + kHeaderLen + kIdLen, idstart + kHeaderLen + kIdLen + nameLen + 1);
+                std::string typeName(idstart + kHeaderLen + kIdLen, idstart + kHeaderLen + kIdLen + nameLen);
                 auto pos = typeName.find(':');
                 if (pos != std::string::npos) {
                     service = typeName.substr(0, pos);
-                    method = typeName.substr(pos);
+                    method = typeName.substr(pos + 1);
                     data = idstart + kHeaderLen + kIdLen + nameLen;
-                    datalen = len - nameLen - 2 * kHeaderLen - kIdLen;
+                    datalen = len - nameLen - kHeaderLen - kIdLen;
                 } else {
                     errorCode = kInvalidNameLen;
                 }

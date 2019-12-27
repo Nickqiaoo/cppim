@@ -34,7 +34,7 @@ void RpcServer::onConnection(const SessionPtr& conn)
     channel->setServices(&services_);
     conn->setMessageCallback(
         std::bind(&RpcChannel::onMessage, channel.get(), _1, _2));
-    //conn->setContext(channel);
+    conn->setChannel(channel);
 }
 
 // void RpcServer::onMessage(const TcpConnectionPtr& conn,

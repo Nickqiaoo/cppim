@@ -1,4 +1,5 @@
 #include "RpcChannel.h"
+#include "log.h"
 #include <functional>
 
 #include <google/protobuf/descriptor.h>
@@ -25,6 +26,7 @@ RpcChannel::~RpcChannel() {
 // method->input_type() and method->output_type().
 void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method, google::protobuf::RpcController* controller,
                             const ::google::protobuf::Message* request, ::google::protobuf::Message* response, ::google::protobuf::Closure* done) {
+    LOG_INFO("callmethod");
     uint64_t id = id_.fetch_add(1);
     std::string name = method->service()->full_name() + ':' + method->name();
 
@@ -40,6 +42,7 @@ void RpcChannel::onMessage(const SessionPtr& conn, BufferPtr buf) { codec_.onMes
 
 void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
                               const char* data, int32_t datalen) {
+    LOG_INFO("onRpcMessage id:{} service:{} method:{}",id,servicename,methodname);
     assert(conn == conn_);
     // printf("%s\n", message.DebugString().c_str());
     if (isresponse) {
@@ -79,7 +82,7 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
                         // response is deleted in doneCallback
                         // TODO modify closure
                         std::string name = servicename + ":" + methodname + ":" + std::to_string(id);
-                        service->CallMethod(method, NULL, request.get(), response, google::protobuf::internal::NewCallback(this, &RpcChannel::doneCallback, response, name));
+                        service->CallMethod(method, NULL, request.get(), response, NewCallback(this, &RpcChannel::doneCallback, response, name));
                         error = NO_ERROR;
                     }else{
                         error = PARSE_ERROR;
@@ -107,7 +110,7 @@ void RpcChannel::doneCallback(::google::protobuf::Message* response, string name
     std::unique_ptr<google::protobuf::Message> d(response);
     auto pos = name.find_last_of(':');
     if (pos != std::string::npos) {
-        uint64_t id = std::strtoull(name.substr(pos).c_str(), nullptr, 0);
+        uint64_t id = std::strtoull(name.substr(pos + 1).c_str(), nullptr, 0);
         name = name.substr(0, pos);
         id = id | 0x8000000000000000;
         codec_.send(id, name, conn_, *response);

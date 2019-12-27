@@ -5,5 +5,5 @@ tcpserver
 .vscode
 build
 http*
-tcpserver*
+tcp*
 log*

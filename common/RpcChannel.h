@@ -127,7 +127,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
   common::RpcCodec codec_;
   SessionPtr conn_;
-  std::atomic<int64_t> id_;
+  std::atomic<int64_t> id_{0};
 
   std::mutex mutex_;
   std::map<uint64_t, OutstandingCall> outstandings_;
