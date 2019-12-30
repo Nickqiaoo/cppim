@@ -23,7 +23,6 @@ class RpcClient {
    private:
     void onConnection(const SessionPtr& conn) {
         LOG_INFO("client onConnection");
-        // channel_.reset(new RpcChannel(conn));
 
         for (int i = 0; i < 1000; i++) {
             channel_->setConnection(conn);

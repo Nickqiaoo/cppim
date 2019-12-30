@@ -2,7 +2,7 @@
 #include <memory>
 #include <mutex>
 
-#include "../Buffer.h"
+#include "Buffer.h"
 #include "net_define.h"
 
 class Session : public std::enable_shared_from_this<Session> {

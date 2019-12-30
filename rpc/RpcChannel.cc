@@ -66,7 +66,6 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
             }
         }
     } else {  // request
-        // FIXME: extract to a function
         ErrorCode error = WRONG_PROTO;
         if (services_) {
             std::map<std::string, google::protobuf::Service*>::const_iterator it = services_->find(servicename);

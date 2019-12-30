@@ -2,6 +2,7 @@
 #include "net_define.h"
 
 class TcpClient {
+   public:
     TcpClient(LoopPtr loop, const std::string& ip, int port) : ip_(ip), port_(port), session_(std::make_shared<Session>(loop)) {}
     ~TcpClient();
     void connect() { session_->connect(ip_, port_); }
