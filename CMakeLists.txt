@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_CURREN
 
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions -Wno-unused -ffunction-sections -fdata-sections")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -static-libstdc++")
@@ -45,7 +46,7 @@ add_definitions(-DASIO_STANDALONE)
 #add_definitions(-DSPDLOG_FMT_EXTERNAL)
 
 #ADD_COMPILE_OPTIONS(-g -std=c++14 -O2 -Wcomment -Wformat -Wmain -Wparentheses -Wswitch -Wunused -Wuninitialized -Wall)
-set(EXECUTABLE_OUTPUT_PATH )
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -69,6 +70,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 #
 #add_custom_target(format)
 link_directories(${LIBRARY_OUTPUT_PATH})
+link_directories(/usr/local/lib/)
 
 include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
 
@@ -76,6 +78,7 @@ include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
 add_subdirectory(common)
 add_subdirectory(rpc)
 add_subdirectory(net)
+add_subdirectory(protocol)
 #add_subdirectory(logicserver)
 add_subdirectory(gateserver)
 #add_subdirectory(jobserver)
