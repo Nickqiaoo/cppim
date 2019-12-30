@@ -1,4 +1,4 @@
-#include "../net/TcpClient.h"
+#include "TcpClient.h"
 #include "RpcChannel.h"
 #include "echo.pb.h"
 #include "net_define.h"

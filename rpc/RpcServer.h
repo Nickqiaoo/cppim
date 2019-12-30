@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../net/TcpServer.h"
+#include "TcpServer.h"
 
 namespace google {
 namespace protobuf {

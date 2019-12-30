@@ -3,8 +3,8 @@
 #include <google/protobuf/message.h>
 #include <functional>
 
-#include "../net/net_define.h"
-#include "../net/Session.h"
+#include "net_define.h"
+#include "Session.h"
 #include "log.h"
 
 

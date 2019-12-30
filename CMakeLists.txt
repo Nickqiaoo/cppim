@@ -11,10 +11,10 @@ set(CMAKE_CXX_COMPILER g++)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions -Wno-unused -ffunction-sections -fdata-sections")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -static-libstdc++")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std-c++17 -fexceptions -fcheck-new -fnon-call-exceptions ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fexceptions -fcheck-new -fnon-call-exceptions ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,../lib/so/")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused -Wreorder -ffunction-sections -fdata-sections")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-amit-frame-pointer")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
 
 #ASAN
 if(OPEN_MEMORY_CHECK)
@@ -25,44 +25,57 @@ if(OPEN_MEMORY_CHECK)
 endif(OPEN_MEMORY_CHECK)
 
 #debug
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -DDEBUG -O0 -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wpointer-arith")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wunreachable-code -Woverloaded-virtual")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wdouble-promotion  -g -ggb -fpic -fPIC")
 
 #release
+set(CMAKE_CXX_FLAGS_RELEASE "ENV${CXXFLAGS} -DNDEBUG -Os -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wextra -Wpointer-arith")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wdouble-promotion -Woverloaded-virtual")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -fpic -fPIC")
 
+message(STATUS "Compiler version: ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_VERSION}")
 
 #ASIO 不使用 Boost 库
 add_definitions(-DASIO_STANDALONE)
 
 #Spdlog 使用外部 Fmt 库
-add_definitions(-DSPDLOG_FMT_EXTERNAL)
+#add_definitions(-DSPDLOG_FMT_EXTERNAL)
 
-ADD_COMPILE_OPTIONS(-g -std=c++14 -O2 -Wcomment -Wformat -Wmain -Wparentheses -Wswitch -Wunused -Wuninitialized -Wall)
+#ADD_COMPILE_OPTIONS(-g -std=c++14 -O2 -Wcomment -Wformat -Wmain -Wparentheses -Wswitch -Wunused -Wuninitialized -Wall)
+set(EXECUTABLE_OUTPUT_PATH )
+set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-link_directories(/usr/lib64/mysql)
+#link_directories(/usr/lib64/mysql)
+#set(CPP_DIRS common chatserver gateserver httpserver test riskserver)
+#message(STATUS "${PROJECT_NAME}, dirs: ${CPP_DIRS}")
+#foreach(EXTENSION ${CPP_EXTENSIONS})
+#  foreach(DIR ${CPP_DIRS})
+#    file(GLOB_RECURSE FIND_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${DIR}/${EXTENSION})
+#    list(APPEND FORMAT_ALL_FILES ${FIND_FILES})
+#  endforeach()
+#endforeach()
+#
+#
+#add_custom_target(format-all
+#  COMMAND clang-format -style=\"{BasedOnStyle: google}\" -i ${FORMAT_ALL_FILES}
+#  COMMAND cpplint --verbose=0 --quiet ${FORMAT_ALL_FILES})
+#
+#add_custom_target(format)
+link_directories(${LIBRARY_OUTPUT_PATH})
 
-set(CPP_DIRS common chatserver gateserver httpserver test riskserver)
-message(STATUS "${PROJECT_NAME}, dirs: ${CPP_DIRS}")
-foreach(EXTENSION ${CPP_EXTENSIONS})
-  foreach(DIR ${CPP_DIRS})
-    file(GLOB_RECURSE FIND_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${DIR}/${EXTENSION})
-    list(APPEND FORMAT_ALL_FILES ${FIND_FILES})
-  endforeach()
-endforeach()
+include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
 
-
-add_custom_target(format-all
-  COMMAND clang-format -style=\"{BasedOnStyle: google}\" -i ${FORMAT_ALL_FILES}
-  COMMAND cpplint --verbose=0 --quiet ${FORMAT_ALL_FILES})
-
-add_custom_target(format)
-
-add_subdirectory(opt)
+#add_subdirectory(opt)
 add_subdirectory(common)
 add_subdirectory(rpc)
 add_subdirectory(net)
-add_subdirectory(logicserver)
+#add_subdirectory(logicserver)
 add_subdirectory(gateserver)
-add_subdirectory(jobserver)
+#add_subdirectory(jobserver)

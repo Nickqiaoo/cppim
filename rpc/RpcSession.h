@@ -1,4 +1,4 @@
-#include "../net/Session.h"
+#include "Session.h"
 
 class RpcSession : public Session {
    public:
