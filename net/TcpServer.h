@@ -10,10 +10,14 @@ class TcpServer {
     TcpServer(int thrnum, const std::string& ip, int port);
     ~TcpServer();
 
-    SessionPtr newSession();
+    void setNewRpcSessionCalback();
     void start();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
     void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
+
+   private:
+    template <typename T>
+    SessionPtr newSession();
 
    private:
     std::map<int, SessionPtr> connections_;

@@ -28,7 +28,7 @@ struct hourly_filename_calculator {
                                   const tm &now_tm) {
     filename_t basename, ext;
     std::tie(basename, ext) =
-        details::file_helper::split_by_extension(filename);
+        details::file_helper::split_by_extenstion(filename);
     std::conditional<std::is_same<filename_t::value_type, char>::value,
                      fmt::memory_buffer, fmt::wmemory_buffer>::type w;
     fmt::format_to(w, SPDLOG_FILENAME_T("{}_{:04d}-{:02d}-{:02d}_{:02d}{}"),

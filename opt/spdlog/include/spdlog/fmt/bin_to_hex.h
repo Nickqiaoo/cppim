@@ -31,7 +31,8 @@ public:
     bytes_range(It range_begin, It range_end)
         : begin_(range_begin)
         , end_(range_end)
-    {}
+    {
+    }
 
     It begin() const
     {
@@ -110,17 +111,13 @@ struct formatter<spdlog::details::bytes_range<T>>
     template<typename FormatContext, typename Container>
     auto format(const spdlog::details::bytes_range<Container> &the_range, FormatContext &ctx) -> decltype(ctx.out())
     {
-        SPDLOG_CONSTEXPR const char *hex_upper = "0123456789ABCDEF";
-        SPDLOG_CONSTEXPR const char *hex_lower = "0123456789abcdef";
+        constexpr const char *hex_upper = "0123456789ABCDEF";
+        constexpr const char *hex_lower = "0123456789abcdef";
         const char *hex_chars = use_uppercase ? hex_upper : hex_lower;
 
         std::size_t pos = 0;
         std::size_t column = line_size;
-#if FMT_VERSION < 60000
         auto inserter = ctx.begin();
-#else
-        auto inserter = ctx.out();
-#endif
 
         for (auto &item : the_range)
         {

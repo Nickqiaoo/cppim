@@ -1,14 +1,21 @@
 #include "TcpServer.h"
+#include "RpcSession.h"
 #include <string>
 
 TcpServer::TcpServer(int thrnum, const std::string &ip, int port)
     : loopmgr_(thrnum), acceptor_(loopmgr_.findNextLoop(), ip, port) {
-    acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession, this));
+    acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<Session>, this));
 }
 TcpServer::~TcpServer(){}
+
+void TcpServer::setNewRpcSessionCalback(){
+    acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<RpcSession>, this));
+}
+
+template<typename T>
 SessionPtr TcpServer::newSession() {
     auto loop = loopmgr_.findNextLoop();
-    auto session = std::make_shared<Session>(loop, sessionid_++);
+    auto session = std::make_shared<T>(loop, sessionid_++);
     session->setMessageCallback(messagecallback_);
     session->setConnectionCallback(connectioncallback_);
     connections_.insert({sessionid_, session});

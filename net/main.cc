@@ -17,7 +17,7 @@ class EchoServiceImpl : public echo::EchoService
 };
 
 int main() {
-    common::Log::Instance().Init("tcpserver","./log","trace","debug",true, 1);
+    common::Log::Instance().Init("tcpserver","../log/tcpserver.log","trace","debug",true, 1);
     string ip = "127.0.0.1";
     RpcServer server(5, ip, 8080);
     EchoServiceImpl impl;

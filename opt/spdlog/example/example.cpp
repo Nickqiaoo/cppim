@@ -1,125 +1,147 @@
 //
 // Copyright(c) 2015 Gabi Melman.
 // Distributed under the MIT License (http://opensource.org/licenses/MIT)
-
+//
+//
 // spdlog usage example
+//
+//
 
-#include <cstdio>
+#include <iostream>
 
-void stdout_logger_example();
+void stdout_example();
 void basic_example();
 void rotating_example();
 void daily_example();
 void async_example();
 void binary_example();
-void trace_example();
 void multi_sink_example();
 void user_defined_example();
 void err_handler_example();
 void syslog_example();
+void clone_example();
 
 #include "spdlog/spdlog.h"
 
 int main(int, char *[])
 {
-    spdlog::info("Welcome to spdlog version {}.{}.{}  !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR, SPDLOG_VER_PATCH);
-    spdlog::warn("Easy padding in numbers like {:08d}", 12);
-    spdlog::critical("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
-    spdlog::info("Support for floats {:03.2f}", 1.23456);
-    spdlog::info("Positional args are {1} {0}..", "too", "supported");
-    spdlog::info("{:>8} aligned, {:<8} aligned", "right", "left");
-
-    // Runtime log levels
-    spdlog::set_level(spdlog::level::info); // Set global log level to info
-    spdlog::debug("This message should not be displayed!");
-    spdlog::set_level(spdlog::level::trace); // Set specific logger's log level
-    spdlog::debug("This message should be displayed..");
-
-    // Customize msg format for all loggers
-    spdlog::set_pattern("[%H:%M:%S %z] [%^%L%$] [thread %t] %v");
-    spdlog::info("This an info message with custom format");
-    spdlog::set_pattern("%+"); // back to default format
-    spdlog::set_level(spdlog::level::info);
-
-    // Backtrace support
-    // Loggers can store in a ring buffer all messages (including debug/trace) for later inspection.
-    // When needed, call dump_backtrace() to see what happened:
-    spdlog::enable_backtrace(10); // create ring buffer with capacity of 10  messages
-    for (int i = 0; i < 100; i++)
-    {
-        spdlog::debug("Backtrace message {}", i); // not logged..
-    }
-    // e.g. if some error happened:
-    spdlog::dump_backtrace(); // log them now!
 
     try
     {
-        stdout_logger_example();
+        // console logging example
+        stdout_example();
+
+        // various file loggers
         basic_example();
         rotating_example();
         daily_example();
-        async_example();
-        binary_example();
-        multi_sink_example();
-        user_defined_example();
-        err_handler_example();
-        trace_example();
 
-        // Flush all *registered* loggers using a worker thread every 3 seconds.
+        clone_example();
+
+        // async logging using a backing thread pool
+        async_example();
+
+        // log binary data
+        binary_example();
+
+        // a logger can have multiple targets with different formats
+        multi_sink_example();
+
+        // user defined types logging by implementing operator<<
+        user_defined_example();
+
+        // custom  error handler
+        err_handler_example();
+
+        // flush all *registered* loggers using a worker thread every 3 seconds.
         // note: registered loggers *must* be thread safe for this to work correctly!
         spdlog::flush_every(std::chrono::seconds(3));
 
-        // Apply some function on all registered loggers
+        // apply some function on all registered loggers
         spdlog::apply_all([&](std::shared_ptr<spdlog::logger> l) { l->info("End of example."); });
 
-        // Release all spdlog resources, and drop all loggers in the registry.
-        // This is optional (only mandatory if using windows + async log).
+        // release any threads created by spdlog, and drop all loggers in the registry.
         spdlog::shutdown();
     }
-
-    // Exceptions will only be thrown upon failed logger or sink construction (not during logging).
+    // Exceptions will only be thrown upon failed logger or sink construction (not during logging)
     catch (const spdlog::spdlog_ex &ex)
     {
-        std::printf("Log initialization failed: %s\n", ex.what());
+        std::cout << "Log init failed: " << ex.what() << std::endl;
         return 1;
     }
 }
 
 #include "spdlog/sinks/stdout_color_sinks.h"
-// or #include "spdlog/sinks/stdout_sinks.h" if no colors needed.
-void stdout_logger_example()
+// or #include "spdlog/sinks/stdout_sinks.h" if no colors needed
+void stdout_example()
 {
-    // Create color multi threaded logger.
+    // create color multi threaded logger
     auto console = spdlog::stdout_color_mt("console");
-    // or for stderr:
-    // auto console = spdlog::stderr_color_mt("error-logger");
+    console->info("Welcome to spdlog version {}.{}.{} !", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR, SPDLOG_VER_PATCH);
+    console->error("Some error message with arg: {}", 1);
+
+    auto err_logger = spdlog::stderr_color_mt("stderr");
+    err_logger->error("Some error message");
+
+    // Formatting examples
+    console->warn("Easy padding in numbers like {:08d}", 12);
+    console->critical("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+    console->info("Support for floats {:03.2f}", 1.23456);
+    console->info("Positional args are {1} {0}..", "too", "supported");
+    console->info("{:<30}", "left aligned");
+
+    spdlog::get("console")->info("loggers can be retrieved from a global registry using the spdlog::get(logger_name)");
+
+    // Runtime log levels
+    spdlog::set_level(spdlog::level::info); // Set global log level to info
+    console->debug("This message should not be displayed!");
+    console->set_level(spdlog::level::trace); // Set specific logger's log level
+    console->debug("This message should be displayed..");
+
+    // Customize msg format for all loggers
+    spdlog::set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
+    console->info("This an info message with custom format");
+    spdlog::set_pattern("%+"); // back to default format
+
+    // Compile time log levels
+    // define SPDLOG_DEBUG_ON or SPDLOG_TRACE_ON
+    SPDLOG_TRACE(console, "Enabled only #ifdef SPDLOG_TRACE_ON..{} ,{}", 1, 3.23);
+    SPDLOG_DEBUG(console, "Enabled only #ifdef SPDLOG_DEBUG_ON.. {} ,{}", 1, 3.23);
 }
 
 #include "spdlog/sinks/basic_file_sink.h"
 void basic_example()
 {
-    // Create basic file logger (not rotated).
-    auto my_logger = spdlog::basic_logger_mt("file_logger", "logs/basic-log.txt");
+    // Create basic file logger (not rotated)
+    auto my_logger = spdlog::basic_logger_mt("basic_logger", "logs/basic-log.txt");
 }
 
 #include "spdlog/sinks/rotating_file_sink.h"
 void rotating_example()
 {
-    // Create a file rotating logger with 5mb size max and 3 rotated files.
+    // Create a file rotating logger with 5mb size max and 3 rotated files
     auto rotating_logger = spdlog::rotating_logger_mt("some_logger_name", "logs/rotating.txt", 1048576 * 5, 3);
 }
 
 #include "spdlog/sinks/daily_file_sink.h"
 void daily_example()
 {
-    // Create a daily logger - a new file is created every day on 2:30am.
+    // Create a daily logger - a new file is created every day on 2:30am
     auto daily_logger = spdlog::daily_logger_mt("daily_logger", "logs/daily.txt", 2, 30);
+}
+
+// clone a logger and give it new name.
+// Useful for creating component/subsystem loggers from some "root" logger
+void clone_example()
+{
+    auto network_logger = spdlog::get("console")->clone("network");
+    network_logger->info("Logging network stuff..");
 }
 
 #include "spdlog/async.h"
 void async_example()
 {
-    // Default thread pool settings can be modified *before* creating the async logger:
+    // default thread pool settings can be modified *before* creating the async logger:
     // spdlog::init_thread_pool(32768, 1); // queue with max 32k items 1 backing thread.
     auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
     // alternatively:
@@ -131,10 +153,10 @@ void async_example()
     }
 }
 
-// Log binary data as hex.
-// Many types of std::container<char> types can be used.
-// Iterator ranges are supported too.
-// Format flags:
+// log binary data as hex.
+// many types of std::container<char> types can be used.
+// ranges are supported too.
+// format flags:
 // {:X} - print in uppercase.
 // {:s} - don't separate each byte with space.
 // {:p} - don't print the position on each line start.
@@ -143,34 +165,19 @@ void async_example()
 #include "spdlog/fmt/bin_to_hex.h"
 void binary_example()
 {
-    std::vector<char> buf;
-    for (int i = 0; i < 80; i++)
-    {
-        buf.push_back(static_cast<char>(i & 0xff));
-    }
-    spdlog::info("Binary example: {}", spdlog::to_hex(buf));
-    spdlog::info("Another binary example:{:n}", spdlog::to_hex(std::begin(buf), std::begin(buf) + 10));
+    auto console = spdlog::get("console");
+    std::array<char, 80> buf;
+    console->info("Binary example: {}", spdlog::to_hex(buf));
+    console->info("Another binary example:{:n}", spdlog::to_hex(std::begin(buf), std::begin(buf) + 10));
     // more examples:
     // logger->info("uppercase: {:X}", spdlog::to_hex(buf));
     // logger->info("uppercase, no delimiters: {:Xs}", spdlog::to_hex(buf));
     // logger->info("uppercase, no delimiters, no position info: {:Xsp}", spdlog::to_hex(buf));
 }
 
-// Compile time log levels.
-// define SPDLOG_ACTIVE_LEVEL to required level (e.g. SPDLOG_LEVEL_TRACE)
-void trace_example()
-{
-    // trace from default logger
-    SPDLOG_TRACE("Some trace message.. {} ,{}", 1, 3.23);
-    // debug from default logger
-    SPDLOG_DEBUG("Some debug message.. {} ,{}", 1, 3.23);
+// create logger with 2 targets with different log levels and formats
+// the console will show only warnings or errors, while the file will log all
 
-    // trace from logger object
-    auto logger = spdlog::get("file_logger");
-    SPDLOG_LOGGER_TRACE(logger, "another trace message");
-}
-
-// A logger with multiple sinks (stdout and file) - each with a different format and log level.
 void multi_sink_example()
 {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -185,8 +192,7 @@ void multi_sink_example()
     logger.warn("this should appear in both console and file");
     logger.info("this message should not appear in the console, only in the file");
 }
-
-// User defined types logging by implementing operator<<
+// user defined types logging by implementing operator<<
 #include "spdlog/fmt/ostr.h" // must be included
 struct my_type
 {
@@ -200,14 +206,17 @@ struct my_type
 
 void user_defined_example()
 {
-    spdlog::info("user defined type: {}", my_type{14});
+    spdlog::get("console")->info("user defined type: {}", my_type{14});
 }
 
-// Custom error handler. Will be triggered on log failure.
+//
+// custom error handler
+//
 void err_handler_example()
 {
     // can be set globally or per logger(logger->set_error_handler(..))
-    spdlog::set_error_handler([](const std::string &msg) { printf("*** Custom log error handler: %s ***\n", msg.c_str()); });
+    spdlog::set_error_handler([](const std::string &msg) { spdlog::get("console")->error("*** ERROR HANDLER EXAMPLE ***: {}", msg); });
+    spdlog::get("console")->info("some invalid message to trigger an error {}{}{}{}", 3);
 }
 
 // syslog example (linux/osx/freebsd)
@@ -221,7 +230,7 @@ void syslog_example()
 }
 #endif
 
-// Android example.
+// Android example
 #if defined(__ANDROID__)
 #include "spdlog/sinks/android_sink.h"
 void android_example()

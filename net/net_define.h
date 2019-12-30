@@ -6,10 +6,12 @@
 
 class Loop;
 class Session;
+class RpcSession;
 class Buffer;
 class RpcChannel;
 
 typedef std::shared_ptr<Session> SessionPtr;
+typedef std::shared_ptr<RpcSession> RpcSessionPtr;
 typedef std::shared_ptr<Buffer> BufferPtr;
 typedef std::shared_ptr<Loop> LoopPtr;
 typedef std::shared_ptr<RpcChannel> RpcChannelPtr;

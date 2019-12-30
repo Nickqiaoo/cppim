@@ -7,7 +7,7 @@
 
 class Session : public std::enable_shared_from_this<Session> {
   public:
-    explicit Session(LoopPtr loop, uint64_t id);
+    explicit Session(LoopPtr loop, uint64_t id = 0);
     ~Session();
     Session(const Session &) = delete;
     Session operator=(const Session &) = delete;
@@ -22,9 +22,6 @@ class Session : public std::enable_shared_from_this<Session> {
       connectioncallback_ = cb;
     }
 
-    void setChannel(RpcChannelPtr channel){
-      channel_ = channel;
-    }
     void send(BufferPtr buffer);
     void connect(const string& ip, int port);
   private:
@@ -42,5 +39,4 @@ class Session : public std::enable_shared_from_this<Session> {
     std::vector<BufferPtr> tmp_queue_;
     onMessageCallback messagecallback_;
     onConnectionCallback connectioncallback_;
-    RpcChannelPtr channel_;
 };

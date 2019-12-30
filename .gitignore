@@ -3,7 +3,7 @@ httpclient
 httpserver
 tcpserver
 .vscode
-build
-http*
-tcp*
-log*
+build/
+bin/
+tcpclient
+log/
