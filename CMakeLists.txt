@@ -11,7 +11,7 @@ set(CMAKE_CXX_COMPILER g++)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions -Wno-unused -ffunction-sections -fdata-sections")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -static-libstdc++")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fexceptions -fcheck-new -fnon-call-exceptions ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -fcheck-new -fnon-call-exceptions ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath,../lib/so/")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused -Wreorder -ffunction-sections -fdata-sections")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
@@ -28,7 +28,7 @@ endif(OPEN_MEMORY_CHECK)
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -DDEBUG -O0 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wpointer-arith")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wunreachable-code -Woverloaded-virtual")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wdouble-promotion  -g -ggb -fpic -fPIC")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wdouble-promotion  -g -ggdb -fpic -fPIC")
 
 #release
 set(CMAKE_CXX_FLAGS_RELEASE "ENV${CXXFLAGS} -DNDEBUG -Os -Wall")
