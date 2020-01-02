@@ -18,4 +18,4 @@ typedef std::shared_ptr<RpcChannel> RpcChannelPtr;
 typedef std::function<SessionPtr()> NewSessionCallback;
 typedef std::function<void(const SessionPtr&)> onConnectionCallback;
 typedef std::function<void(void)> Callback;
-typedef std::function<void(SessionPtr, BufferPtr)> onMessageCallback;
+typedef std::function<void(const SessionPtr, const BufferPtr)> onMessageCallback;

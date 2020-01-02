@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <functional>
 
+class Message;
 using namespace std::placeholders;
 
 class LogicRpcClient {
@@ -28,12 +29,12 @@ class LogicRpcClient {
         channel_->setConnection(conn);
     }
 
-    void Connect(logic::ConnectReq* request) {
+    void Connect(logic::ConnectReq* request, SessionPtr session) {
         logic::ConnectReply* response = new logic::ConnectReply;
-        stub_.Connect(NULL, request, response, NewCallback(this, &LogicRpcClient::HandleConnect, response));
+        stub_.Connect(NULL, request, response, NewCallback(this, &LogicRpcClient::HandleConnect, response, session));
     }
     private:
-    void HandleConnect(logic::ConnectReply* response);
+    void HandleConnect(logic::ConnectReply* response, SessionPtr session);
     SessionPtr session_;
     RpcChannelPtr channel_;
     logic::Logic_Stub stub_;
