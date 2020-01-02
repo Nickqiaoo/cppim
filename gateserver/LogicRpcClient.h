@@ -2,7 +2,6 @@
 
 #include "Loop.h"
 #include "RpcChannel.h"
-#include "Tcpserver.h"
 #include "logic.pb.h"
 #include "log.h"
 
@@ -22,17 +21,16 @@ class LogicRpcClient {
     }
 
     void connect() { session_->connect("127.0.0.1", 8080); }
-
+    void Connect(logic::ConnectReq* request, SessionPtr session) {
+        logic::ConnectReply* response = new logic::ConnectReply;
+        stub_.Connect(NULL, request, response, NewCallback(this, &LogicRpcClient::HandleConnect, response, session));
+    }
    private:
     void onConnection(const SessionPtr& conn) {
         LOG_INFO("client onConnection");
         channel_->setConnection(conn);
     }
 
-    void Connect(logic::ConnectReq* request, SessionPtr session) {
-        logic::ConnectReply* response = new logic::ConnectReply;
-        stub_.Connect(NULL, request, response, NewCallback(this, &LogicRpcClient::HandleConnect, response, session));
-    }
     private:
     void HandleConnect(logic::ConnectReply* response, SessionPtr session);
     SessionPtr session_;

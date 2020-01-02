@@ -5,7 +5,6 @@
 #include "GateServiceImpl.h"
 #include "ClientCodec.h"
 #include "RpcServer.h"
-#include "TcpServer.h"
 
 class GateServer {
    public:
@@ -13,7 +12,7 @@ class GateServer {
     ~GateServer();
 
    private:
-   void onClientMessageCallback();
+   void onClientMessageCallback(const SessionPtr&, int op, int id, const std::string& body);
    private:
     TcpServer tcpserver_;
     RpcServer rpcserver_;
