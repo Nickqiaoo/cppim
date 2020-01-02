@@ -15,9 +15,7 @@ class ClientCodec {
         while (buf->readableBytes() >= kHeaderLen)  // kHeaderLen == 4
         {
             // FIXME: use Buffer::peekInt32()
-            const void* data = buf->peek();
-            int32_t be32 = *static_cast<const int32_t*>(data);  // SIGBUS
-            const int32_t len = muduo::net::sockets::networkToHost32(be32);
+            const int32_t len = buf->peekInt32();
             if (len > 65536 || len < 0) {
                 LOG_ERROR << "Invalid length " << len;
                 conn->shutdown();  // FIXME: disable reading
