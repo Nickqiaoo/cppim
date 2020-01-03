@@ -1,9 +1,9 @@
 #pragma once;
 
 #include <functional>
-#include "net_define.h"
 #include "Session.h"
 #include "log.h"
+#include "net_define.h"
 
 class ClientCodec {
    public:
@@ -17,13 +17,15 @@ class ClientCodec {
             // FIXME: use Buffer::peekInt32()
             const int32_t len = buf->peekInt32();
             if (len > 65536 || len < 0) {
-                LOG_ERROR << "Invalid length " << len;
-                conn->shutdown();  // FIXME: disable reading
+                LOG_ERROR("Invalid length");
+                conn->close();  // FIXME: disable reading
                 break;
             } else if (buf->readableBytes() >= len + kHeaderLen) {
                 buf->retrieve(kHeaderLen);
+                int op, id;
+                std::string body;
                 muduo::string message(buf->peek(), len);
-                messageCallback_(conn, message, receiveTime);
+                messageCallback_(conn, op, id, body);
                 buf->retrieve(len);
             } else {
                 break;

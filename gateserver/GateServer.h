@@ -17,8 +17,10 @@ class GateServer {
    private:
     TcpServer tcpserver_;
     RpcServer rpcserver_;
+
     LogicRpcClient rpcclient_;
     GateServiceImpl gateservice_;
+    
     ClientCodec clientcodec_;
 
     std::mutex mutex_;

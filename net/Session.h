@@ -24,10 +24,10 @@ class Session : public std::enable_shared_from_this<Session> {
 
     void send(BufferPtr buffer);
     void connect(const string& ip, int port);
+    void close();
   private:
     void read();
     void write();
-    void close();
   private:
     uint64_t id_;
     std::mutex mutex_;
