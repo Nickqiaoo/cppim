@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "Loop.h"
 #include "RpcChannel.h"

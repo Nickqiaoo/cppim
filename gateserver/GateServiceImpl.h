@@ -1,3 +1,5 @@
+#pragma once
+
 #include "gate.pb.h"
 #include "log.h"
 
