@@ -6,6 +6,8 @@
 
 ![rpcprotocol](./docs/RpcProtocol.png)
 
+Id最高位为RPC标志位，0表示request，1表示response。
+
 ## Gate协议格式
 
 ![protocol](./docs/protocol.png)

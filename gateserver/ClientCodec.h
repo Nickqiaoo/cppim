@@ -12,19 +12,20 @@ class ClientCodec {
     explicit ClientCodec(const ClientMessageCallback& cb) : messageCallback_(cb) {}
 
     void onMessage(const SessionPtr conn, BufferPtr buf) {
-        while (buf->readableBytes() >= kHeaderLen)  // kHeaderLen == 4
+        while (buf->readableBytes() >= kHeaderLen)
         {
-            // FIXME: use Buffer::peekInt32()
             const int32_t len = buf->peekInt32();
             if (len > 65536 || len < 0) {
                 LOG_ERROR("Invalid length");
-                conn->close();  // FIXME: disable reading
+                conn->close();
                 break;
             } else if (buf->readableBytes() >= len + kHeaderLen) {
-                buf->retrieve(kHeaderLen);
-                int op, id;
-                std::string body;
-                muduo::string message(buf->peek(), len);
+                buf->retrieve(kHeaderLen + 4);
+                int op = buf->peekInt32();
+                buf->retrieve(4);
+                int id = buf->peekInt32();
+                buf->retrieve(4);
+                std::string body(buf->peek(), len - 16);
                 messageCallback_(conn, op, id, body);
                 buf->retrieve(len);
             } else {
@@ -33,12 +34,22 @@ class ClientCodec {
         }
     }
 
-    // FIXME: TcpConnectionPtr
     void send(const SessionPtr conn, int op, int id, const std::string& body) {
         LOG_INFO("send messageid {}");
         auto buf = std::make_shared<Buffer>();
         fillEmptyBuffer(buf, op, id, body);
         conn->send(buf);
+    }
+
+   private:
+    void fillEmptyBuffer(BufferPtr buf, int op, int id, const std::string& body) {
+        buf->appendInt16(1); //headerlen
+        buf->appendInt16(1); //version
+        buf->appendInt32(op);
+        buf->appendInt32(id);
+        buf->append(body.c_str(),body.size());
+        int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()));
+        buf->prepend(&len, sizeof len);
     }
 
    private:

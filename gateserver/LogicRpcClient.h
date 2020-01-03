@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <functional>
 
-class Message;
+class GateServer;
 using namespace std::placeholders;
 
 class LogicRpcClient {
@@ -20,10 +20,11 @@ class LogicRpcClient {
         // client_.enableRetry();
     }
 
-    void connect() { session_->connect("127.0.0.1", 8080); }
+    void connect(const std::string& ip, int port) { session_->connect(ip,port); }
+
     void Connect(logic::ConnectReq* request, SessionPtr session) {
         logic::ConnectReply* response = new logic::ConnectReply;
-        stub_.Connect(NULL, request, response, NewCallback(this, &LogicRpcClient::HandleConnect, response, session));
+        stub_.Connect(NULL, request, response, NewCallback(gateserver_, &GateServer::HandleConnect, response, session));
     }
    private:
     void onConnection(const SessionPtr& conn) {
@@ -32,7 +33,7 @@ class LogicRpcClient {
     }
 
     private:
-    void HandleConnect(logic::ConnectReply* response, SessionPtr session);
+    GateServer* gateserver_;
     SessionPtr session_;
     RpcChannelPtr channel_;
     logic::Logic_Stub stub_;
