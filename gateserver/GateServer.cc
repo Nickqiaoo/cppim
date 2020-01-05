@@ -4,7 +4,9 @@ GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int t
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
       rpcclient_(loop),
-      clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {}
+      clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
+          tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage,&clientcodec_,_1,_2));
+      }
 GateServer::~GateServer() {}
 
 void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) {

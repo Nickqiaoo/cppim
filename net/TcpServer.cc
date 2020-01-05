@@ -12,6 +12,10 @@ void TcpServer::setNewRpcSessionCalback(){
     acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<RpcSession>, this));
 }
 
+void TcpServer::setNewHttpSessionCalback(){
+    acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<HttpSession>, this));
+}
+
 template<typename T>
 SessionPtr TcpServer::newSession() {
     auto loop = loopmgr_.findNextLoop();

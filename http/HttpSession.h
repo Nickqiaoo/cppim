@@ -1,27 +1,16 @@
 #pragma once
 
-#include <asio.hpp>
-#include <memory>
-
-#include "Buffer.h"
+#include "Session.h"
 #include "HttpContext.h"
 
-class HttpSession : public std::enable_shared_from_this<HttpSession> {
+class HttpSession : public Session {
 
   public:
-    HttpSession(const HttpSession &) = delete;
-    HttpSession operator=(const HttpSession &) = delete;
-    
-    ~HttpSession();
-    explicit HttpSession(asio::io_service &service);
-
-    asio::ip::tcp::socket &Socket() { return socket_; }
-    void Start();
-    void Send(Buffer* buf);
-
+    explicit HttpSession(LoopPtr loop, uint64_t id) : Session(loop, id) {}
+    ~HttpSession() {}
+    HttpContext* getContext(){
+      return &context_;
+    }
   private:
-    Buffer readbuf_;
-    Buffer writebuf_;
     HttpContext context_;
-    asio::ip::tcp::socket socket_;
 };

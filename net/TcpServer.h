@@ -11,6 +11,7 @@ class TcpServer {
     ~TcpServer();
 
     void setNewRpcSessionCalback();
+    void setNewHttpSessionCalback();
     void start();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
     void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }

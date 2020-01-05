@@ -1,16 +1,24 @@
 #pragma once
 
-#include "HttpSession.h"
+#include <unordered_map>
+#include "TcpServer.h"
+
+class HttpRequest;
+class HttpResponse;
 
 class HttpServer {
-    typedef std::shared_ptr<HttpSession> HttpSessionPtr;
+  typedef std::function<void(const SessionPtr,const HttpRequest&,HttpResponse*)> HttpCallback;
 
   public:
-    HttpServer(asio::io_service& io_service, asio::ip::tcp::endpoint ep);
+    HttpServer(int thrnum, const std::string& ip, int port);
     ~HttpServer();
-    void doAccept();
     void Start();
+    private:
+    void onConnection(const SessionPtr& conn);
+    void onMessage(const SessionPtr, const BufferPtr);
+    void onRequest(const SessionPtr& conn, const HttpRequest& req); 
+    
   private:
-    asio::io_service &io_service_;
-    asio::ip::tcp::acceptor acceptor_;
+   TcpServer tcpserver_;
+   std::unordered_map<std::string,HttpCallback> handler_;
 };
