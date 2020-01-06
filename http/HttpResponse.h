@@ -31,7 +31,7 @@ class HttpResponse {
 
     void setBody(const std::string& body) { body_ = body; }
 
-    void appendToBuffer(Buffer* output) const;
+    void appendToBuffer(BufferPtr output) const;
 
    private:
     std::map<std::string, std::string> headers_;

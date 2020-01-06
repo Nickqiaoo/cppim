@@ -62,7 +62,7 @@ class RpcCodec {
     const static int kHeaderLen = sizeof(int32_t);
     const static int kIdLen = sizeof(uint64_t);
     const static int kMinMessageLen = kIdLen + kHeaderLen + 3; // IdLen + nameLen + typeName
-    const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimi
+    const static int kMaxMessageLen = 64*1024*1024; 
 };
 
 };  // namespace common

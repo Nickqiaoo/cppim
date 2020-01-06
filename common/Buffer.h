@@ -20,6 +20,8 @@
 
 using namespace std;
 
+typedef std::shared_ptr<Buffer> BufferPtr;
+
 class Buffer 
 {
  public:
@@ -150,6 +152,13 @@ class Buffer
     return result;
   }
 
+  void append(const char* data){
+    append(data,strlen(data));
+  }
+
+  void append(const std::string& data){
+    append(data.c_str(),data.length());
+  }
   void append(const char* /*restrict*/ data, size_t len)
   {
     ensureWritableBytes(len);

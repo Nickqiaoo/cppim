@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-void HttpResponse::appendToBuffer(Buffer* output) const
+void HttpResponse::appendToBuffer(BufferPtr output) const
 {
   char buf[32];
   snprintf(buf, sizeof buf, "HTTP/1.1 %d ", statusCode_);

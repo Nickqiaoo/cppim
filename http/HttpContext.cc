@@ -1,3 +1,4 @@
+#include "net_define.h"
 #include "HttpContext.h"
 #include "Buffer.h"
 
@@ -35,7 +36,7 @@ bool HttpContext::parseRequestLine(const char *begin, const char *end) {
     return success;
 }
 
-bool HttpContext::parseRequest(Buffer *buf) {
+bool HttpContext::parseRequest(BufferPtr buf) {
     bool ok = true;
     bool hasMore = true;
     while (hasMore) {
