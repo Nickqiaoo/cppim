@@ -11,7 +11,7 @@ HttpServer::HttpServer(int thrnum, const std::string& ip, int port) : tcpserver_
 
 HttpServer::~HttpServer() {}
 
-void HttpServer::Start() {
+void HttpServer::start() {
     tcpserver_.setNewHttpSessionCalback();
     tcpserver_.start();
 }
@@ -27,24 +27,36 @@ void HttpServer::onMessage(const SessionPtr conn, const BufferPtr buf) {
     }
 
     if (context->gotAll()) {
-        onRequest(conn, context->request());
+        onRequest(httpsession, context->request());
         context->reset();
     }
 }
 
-void HttpServer::onRequest(const SessionPtr& conn, const HttpRequest& req) {
+void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
     const string& connection = req.getHeader("Connection");
     bool close = connection == "close" || (req.getVersion() == HttpRequest::kHttp10 && connection != "Keep-Alive");
-    HttpResponse response(close);
+    auto response = std::make_shared<HttpResponse>(conn,close);
     auto it = handler_.find(req.path());
     if (it != handler_.end()) {
-        it->second(conn, req, &response);
-        auto buf = std::make_shared<Buffer>();
-        response.appendToBuffer(buf);
-        conn->send(buf);
+        it->second(req, response);
+        if(!response->delay()){
+            response->setStatusCode(HttpResponse::k200Ok);
+            response->setStatusMessage("OK");
+            doResponse(response);
+        }
     } else {
+        response->setStatusCode(HttpResponse::k404NotFound);
+        response->setStatusMessage("NotFound");
+        doResponse(response);
     }
-    if (response.closeConnection()) {
+    if (response->closeConnection()) {
         conn->close();
     }
+}
+
+void doResponse(HttpResponsePtr response){
+    auto buf = std::make_shared<Buffer>();
+    response->appendToBuffer(buf);
+    auto session = response->getSessionPtr();
+    session->send(buf);
 }

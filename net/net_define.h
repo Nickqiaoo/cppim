@@ -10,10 +10,12 @@ class RpcSession;
 class HttpSession;
 class Buffer;
 class RpcChannel;
+class HttpResponse;
 
 typedef std::shared_ptr<Session> SessionPtr;
 typedef std::shared_ptr<RpcSession> RpcSessionPtr;
 typedef std::shared_ptr<HttpSession> HttpSessionPtr;
+typedef std::shared_ptr<HttpResponse> HttpResponsePtr;
 typedef std::shared_ptr<Buffer> BufferPtr;
 typedef std::shared_ptr<Loop> LoopPtr;
 typedef std::shared_ptr<RpcChannel> RpcChannelPtr;

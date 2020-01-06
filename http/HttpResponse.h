@@ -14,7 +14,7 @@ class HttpResponse {
         k404NotFound = 404,
     };
 
-    explicit HttpResponse(bool close) : statusCode_(kUnknown), closeConnection_(close) {}
+    explicit HttpResponse(HttpSessionPtr session, bool close) : statusCode_(kUnknown), closeConnection_(close),httpsession_(session) {}
 
     void setStatusCode(HttpStatusCode code) { statusCode_ = code; }
 
@@ -33,6 +33,18 @@ class HttpResponse {
 
     void appendToBuffer(BufferPtr output) const;
 
+    HttpSessionPtr getSessionPtr(){
+        return httpsession_;
+    }
+
+    void setDelay(){
+        delay_ = true;
+    }
+
+    bool delay(){
+        return delay_;
+    }
+
    private:
     std::map<std::string, std::string> headers_;
     HttpStatusCode statusCode_;
@@ -40,4 +52,6 @@ class HttpResponse {
     std::string statusMessage_;
     bool closeConnection_;
     std::string body_;
+    bool delay_{false};
+    HttpSessionPtr httpsession_;
 };

@@ -75,6 +75,8 @@ class HttpRequest {
         body_.assign(start, end);
     }
 
+    const string &body() const { return body_; }
+
     const string &query() const { return query_; }
 
     void addHeader(const char *start, const char *colon, const char *end) {

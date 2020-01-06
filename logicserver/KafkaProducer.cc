@@ -3,6 +3,9 @@
 
 KafkaProducer::KafkaProducer(const std::string& broker) : broker_(broker), conf_(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)) {
     std::string errstr;
+    if (conf_->set("bootstrap.servers", broker, errstr) != RdKafka::Conf::CONF_OK) {
+        LOG_INFO("init broker error: {}", errstr);
+    }
     producer_ = std::shared_ptr<RdKafka::Producer>(RdKafka::Producer::create(conf_.get(), errstr));
     if (!producer_.get()) {
         LOG_INFO("create kafka produce error:{}", errstr);
