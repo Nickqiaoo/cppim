@@ -35,5 +35,7 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     std::string roomid = response->roomid();
     for (int i = 0; i < response->accepts_size(); i++) {
     }
+    channels_.insert({key,session});
+    rooms_[roomid].insert(session);
     clientcodec_.send(session, 8, 0, std::string());
 }

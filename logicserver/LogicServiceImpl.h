@@ -2,7 +2,6 @@
 
 #include "log.h"
 #include "logic.pb.h"
-#include "KafkaProducer.h"
 
 class LogicServer;
 
@@ -13,5 +12,4 @@ class LogicServiceImpl : public logic::Logic {
 
    private:
     LogicServer* logicserver_;
-    KafkaProducer kafkaproducer_;
 };

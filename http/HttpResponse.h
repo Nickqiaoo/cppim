@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include "HttpSession.h"
 
 class Buffer;
 class HttpResponse {
@@ -43,6 +44,12 @@ class HttpResponse {
 
     bool delay(){
         return delay_;
+    }
+
+    void send(){
+        auto buf = std::make_shared<Buffer>();
+        appendToBuffer(buf);
+        httpsession_->send(buf);
     }
 
    private:

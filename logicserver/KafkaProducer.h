@@ -20,6 +20,7 @@ class KafkaProducer {
    public:
     KafkaProducer(const std::string& broker);
     ~KafkaProducer();
+    
     void Produce(const std::string& topic, const std::string& key, const std::string& value);
 
    private:
