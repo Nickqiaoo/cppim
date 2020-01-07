@@ -5,8 +5,8 @@ GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int t
       rpcserver_(thrnum, rpcip, rpcport),
       rpcclient_(loop),
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
-          tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage,&clientcodec_,_1,_2));
-      }
+    tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
+}
 GateServer::~GateServer() {}
 
 void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) {
@@ -35,7 +35,14 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     std::string roomid = response->roomid();
     for (int i = 0; i < response->accepts_size(); i++) {
     }
-    channels_.insert({key,session});
+    channels_.insert({key, session});
     rooms_[roomid].insert(session);
     clientcodec_.send(session, 8, 0, std::string());
+}
+
+void GateServer::SendToClient(const std::string& key, const gate::Proto& msg) {
+    auto it = channels_.find(key);
+    if (it != channels_.end()) {
+        clientcodec_.send(it->second, msg.op(), msg.seq(), msg.body());
+    }
 }

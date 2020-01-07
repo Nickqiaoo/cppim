@@ -11,10 +11,10 @@ class GateServer {
    public:
     GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport);
     ~GateServer();
-    
+
     void HandleConnect(logic::ConnectReply* response, const SessionPtr session);
     void Start();
-    void SendToClient(const std::string& key, const std::string& body);
+    void SendToClient(const std::string& key, const gate::Proto& msg);
     void SendToRoom(const std::string& roomid, const std::string& body);
     void BroadCast(const std::string& body);
    private:
