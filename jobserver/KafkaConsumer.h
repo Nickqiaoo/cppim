@@ -58,12 +58,9 @@ public:
 
     if (err == RdKafka::ERR__ASSIGN_PARTITIONS) {
       consumer->assign(partitions);
-      partition_cnt = (int)partitions.size();
     } else {
       consumer->unassign();
-      partition_cnt = 0;
     }
-    eof_cnt = 0;
   }
 };
 
@@ -76,12 +73,9 @@ class KafkaConsumer{
         consumer_->subscribe(topic_);
     }
 
-    void Start(){
-        while(1){
-            RdKafka::Message *msg = consumer_->consume(1000);
-            messagecb_(msg, NULL);
-            delete msg;
-        }
+    void Start();
+    void setMseeageCallback(const KafkaMessageCallback& cb){
+        messagecb_ = cb;
     }
 
     private:

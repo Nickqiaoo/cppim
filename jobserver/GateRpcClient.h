@@ -22,9 +22,9 @@ class GateRpcClient {
 
     void connect(const std::string& ip, int port) { session_->connect(ip,port); }
 
-    void PushMsg(gate::PushMsgReq* request, SessionPtr session) {
+    void PushMsg(gate::PushMsgReq* request) {
         gate::PushMsgReply* response = new gate::PushMsgReply;
-        stub_.PushMsg(NULL, request, response, NewCallback(gateserver_, &GateServer::HandleConnect, response, session));
+        stub_.PushMsg(NULL, request, response, NewCallback(jobserver_, &JobServer::HandlePushMsg, response));
     }
    private:
     void onConnection(const SessionPtr& conn) {
