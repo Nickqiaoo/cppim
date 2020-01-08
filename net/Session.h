@@ -29,6 +29,7 @@ class Session : public std::enable_shared_from_this<Session> {
   private:
     void read();
     void write();
+    void reconnect();
   private:
     uint64_t id_;
     std::mutex mutex_;
@@ -37,6 +38,9 @@ class Session : public std::enable_shared_from_this<Session> {
     Buffer write_buf_;
     asio::ip::tcp::socket socket_;
     asio::steady_timer timer_;
+    bool reconnect_{false};
+    string ip_;
+    int port_;
     std::vector<BufferPtr> unsend_queue_;
     std::vector<BufferPtr> tmp_queue_;
     onMessageCallback messagecallback_;

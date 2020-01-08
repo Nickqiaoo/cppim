@@ -29,6 +29,9 @@ void Session::read() {
             read();
         } else {
             LOG_ERROR("read error: {}", err.message());
+            if(reconnect_){
+                reconnect();
+            }
             return;
         }
     });
@@ -82,22 +85,31 @@ void Session::write() {
 void Session::connect(const string &ip, int port) {
     // asio::ip::tcp::resolver resolver(loop_->ios());
     // auto ep = resolver.resolve(ip, std::to_string(port)).begin();
+    ip_ = ip;
+    port_ = port;
+    reconnect_ = true;
     asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
     auto self(shared_from_this());
-    socket_.async_connect(ep, [self, ip, port, this](const asio::error_code &err) {
+    socket_.async_connect(ep, [self, this](const asio::error_code &err) {
         if (!err) {
             start();
         } else {
             LOG_ERROR("connect error: {}", err.message());
-            timer_.expires_from_now(std::chrono::seconds(5));
-            timer_.async_wait([self, ip, port, this](const std::error_code &err) {
-                if (!err) {
-                    LOG_INFO("start reconnect ip:{} port:{}",ip,port);
-                    connect(ip, port);
-                }
-            });
+            socket_.close();
+            reconnect();
         }
         return;
+    });
+}
+
+void Session::reconnect() {
+    timer_.expires_from_now(std::chrono::seconds(5));
+    auto self(shared_from_this());
+    timer_.async_wait([self, this](const std::error_code &err) {
+        if (!err) {
+            LOG_INFO("start reconnect ip:{} port:{}", ip_, port_);
+            connect(ip_, port_);
+        }
     });
 }
 
