@@ -11,10 +11,10 @@ LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, co
 LogicServer::~LogicServer() {}
 
 void LogicServer::Start() {
+    httpserver_.RegHandler("/push", std::bind(&LogicServer::PushMsgByKeysHandler, this, _1, _2));
     httpserver_.start();
     rpcserver_.registerService(&logicservice_);
     rpcserver_.start();
-    httpserver_.RegHandler("/push", std::bind(&LogicServer::PushMsgByKeysHandler, this, _1, _2));
 }
 
 void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response) {
@@ -37,6 +37,7 @@ void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponseP
     }
     if (!keys.empty() && operation != 0) {
         // response->delay();
+        LOG_INFO("http request key: {} operation: {}",keys[0], operation);
         PushMsgByKeys(keys, operation, request.body());
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);

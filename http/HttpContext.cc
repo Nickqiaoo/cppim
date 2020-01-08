@@ -78,6 +78,7 @@ bool HttpContext::parseRequest(BufferPtr buf) {
                 if (buf->beginWrite() - buf->peek() >= contentlength) {
                     state_ = kGotAll;
                     request_.setBody(buf->peek(), buf->peek() + contentlength);
+                    hasMore = false;
                 } else {
                     hasMore = false;
                 }

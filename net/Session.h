@@ -2,6 +2,7 @@
 #include <memory>
 #include <mutex>
 
+#include "asio/steady_timer.hpp"
 #include "Buffer.h"
 #include "net_define.h"
 
@@ -35,6 +36,7 @@ class Session : public std::enable_shared_from_this<Session> {
     Buffer read_buf_;
     Buffer write_buf_;
     asio::ip::tcp::socket socket_;
+    asio::steady_timer timer_;
     std::vector<BufferPtr> unsend_queue_;
     std::vector<BufferPtr> tmp_queue_;
     onMessageCallback messagecallback_;

@@ -11,9 +11,11 @@ KafkaProducer::KafkaProducer(const std::string& broker) : broker_(broker), conf_
         LOG_INFO("create kafka produce error:{}", errstr);
     }
 }
+
 KafkaProducer::~KafkaProducer(){}
 
 void KafkaProducer::Produce(const std::string& topic, const std::string& key, const std::string& value) {
+    LOG_INFO("kafka produce message:{}", value);
     RdKafka::ErrorCode err = producer_->produce(topic, RdKafka::Topic::PARTITION_UA, RdKafka::Producer::RK_MSG_COPY, const_cast<char*>(value.c_str()),
                                                 value.size(), NULL, 0, 0, NULL, NULL);
 }

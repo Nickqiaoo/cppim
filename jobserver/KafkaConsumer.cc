@@ -19,7 +19,7 @@ KafkaConsumer::~KafkaConsumer(){
 
 void KafkaConsumer::Start(){
         while(1){
-            RdKafka::Message *msg = consumer_->consume(1000);
+            RdKafka::Message *msg = consumer_->consume(10);
             messagecb_(msg, NULL);
             delete msg;
         }

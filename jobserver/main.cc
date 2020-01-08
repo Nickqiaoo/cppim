@@ -8,8 +8,6 @@ int main() {
     JobServer server(loop,"localhost:9092");
     server.Start();
     loop->start();
-    while (1) {
-        sleep(100);
-    }
+    server.StartConsum(); 
     return 0;
 }

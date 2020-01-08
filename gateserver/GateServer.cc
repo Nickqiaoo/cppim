@@ -28,6 +28,7 @@ void GateServer::Start() {
     tcpserver_.start();
     rpcserver_.registerService(&gateservice_);
     rpcserver_.start();
+    rpcclient_.connect("127.0.0.1", 8083);
 }
 
 void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr session) {

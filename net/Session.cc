@@ -1,8 +1,10 @@
 #include "Session.h"
-#include <iostream>
 #include "Loop.h"
+#include "log.h"
 
-Session::Session(LoopPtr loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()) {}
+#include <iostream>
+
+Session::Session(LoopPtr loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()), timer_(loop->ios()) {}
 Session::~Session() {}
 
 void Session::start() {
@@ -10,7 +12,7 @@ void Session::start() {
     asio::ip::tcp::no_delay nodelay(true);
     socket_.set_option(nodelay);
     socket_.set_option(asio::socket_base::keep_alive(true));
-    if(connectioncallback_){
+    if (connectioncallback_) {
         connectioncallback_(shared_from_this());
     }
     read();
@@ -26,7 +28,7 @@ void Session::read() {
             read_buf_.retrieve(size);
             read();
         } else {
-            std::cout << "read errer :" << err.message() << std::endl;
+            LOG_ERROR("read error: {}", err.message());
             return;
         }
     });
@@ -71,23 +73,31 @@ void Session::write() {
             }
             write();
         } else {
-            std::cout << "write errer :" << err.message() << std::endl;
+            LOG_ERROR("write error: {}", err.message());
             return;
         }
     });
 }
 
 void Session::connect(const string &ip, int port) {
-    //asio::ip::tcp::resolver resolver(loop_->ios());
-    //auto ep = resolver.resolve(ip, std::to_string(port)).begin();
+    // asio::ip::tcp::resolver resolver(loop_->ios());
+    // auto ep = resolver.resolve(ip, std::to_string(port)).begin();
     asio::ip::tcp::endpoint ep(asio::ip::address::from_string(ip), port);
     auto self(shared_from_this());
-    socket_.async_connect(ep, [self, this](const asio::error_code &err) {
+    socket_.async_connect(ep, [self, ip, port, this](const asio::error_code &err) {
         if (!err) {
             start();
         } else {
-            return;
+            LOG_ERROR("connect error: {}", err.message());
+            timer_.expires_from_now(std::chrono::seconds(5));
+            timer_.async_wait([self, ip, port, this](const std::error_code &err) {
+                if (!err) {
+                    LOG_INFO("start reconnect ip:{} port:{}",ip,port);
+                    connect(ip, port);
+                }
+            });
         }
+        return;
     });
 }
 
