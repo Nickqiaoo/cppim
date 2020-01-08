@@ -5,8 +5,12 @@ KafkaConsumer::KafkaConsumer(const std::string& brokers)
     std::string errstr;
     conf_->set("metadata.broker.list", brokers_, errstr);
     conf_->set("group.id", "test", errstr);
+    //tconf_->set("topic","cppim",errstr);
     conf_->set("default_topic_conf", tconf_.get(), errstr);
     consumer_ = std::shared_ptr<RdKafka::KafkaConsumer>(RdKafka::KafkaConsumer::create(conf_.get(), errstr));
+    std::vector<std::string> topics;
+    topics.emplace_back("cppim");
+    consumer_->subscribe(topics);
 }
 
 KafkaConsumer::~KafkaConsumer(){

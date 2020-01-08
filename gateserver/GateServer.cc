@@ -3,7 +3,8 @@
 GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
-      rpcclient_(loop),
+      rpcclient_(this,loop),
+      gateservice_(this),
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
     tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
 }
@@ -11,12 +12,12 @@ GateServer::~GateServer() {}
 
 void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) {
     switch (op) {
-        case 7:
+        case 7: {
             logic::ConnectReq* req = new logic::ConnectReq;
             req->set_server(serverid_);
             req->set_token(body);
             rpcclient_.Connect(req, session);
-            break;
+        }break;
 
         default:
             break;

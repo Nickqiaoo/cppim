@@ -14,7 +14,7 @@ using namespace std::placeholders;
 
 class GateRpcClient {
    public:
-    GateRpcClient(LoopPtr loop) : session_(std::make_shared<Session>(loop, 1)), channel_(new RpcChannel), stub_(channel_.get()) {
+    GateRpcClient(JobServer* server, LoopPtr loop) :jobserver_(server), session_(std::make_shared<Session>(loop, 1)), channel_(new RpcChannel), stub_(channel_.get()) {
         session_->setConnectionCallback(std::bind(&GateRpcClient::onConnection, this, _1));
         session_->setMessageCallback(std::bind(&RpcChannel::onMessage, channel_.get(), _1, _2));
         // client_.enableRetry();
@@ -22,10 +22,7 @@ class GateRpcClient {
 
     void connect(const std::string& ip, int port) { session_->connect(ip,port); }
 
-    void PushMsg(gate::PushMsgReq* request) {
-        gate::PushMsgReply* response = new gate::PushMsgReply;
-        stub_.PushMsg(NULL, request, response, NewCallback(jobserver_, &JobServer::HandlePushMsg, response));
-    }
+    void PushMsg(gate::PushMsgReq* request); 
    private:
     void onConnection(const SessionPtr& conn) {
         LOG_INFO("client onConnection");

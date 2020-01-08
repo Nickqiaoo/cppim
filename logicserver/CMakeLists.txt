@@ -1,17 +1,20 @@
-aux_source_directory(. GATE_SOURCES)
-file(GLOB GATE_HEADERS *.h *.hpp)
+aux_source_directory(. LOGIC_SOURCES)
+file(GLOB LOGIC_HEADERS *.h *.hpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/rpc/)
 include_directories(${CMAKE_SOURCE_DIR}/common/)
 include_directories(${CMAKE_SOURCE_DIR}/net/)
 include_directories(${CMAKE_SOURCE_DIR}/protocol/)
+include_directories(${CMAKE_SOURCE_DIR}/http/)
 
-add_executable(gateserver ${GATE_SOURCES} ${GATE_HEADERS})
-target_link_libraries(gateserver
+add_executable(logicserver ${LOGIC_SOURCES} ${LOGIC_HEADERS})
+target_link_libraries(logicserver
 net
 common
 rpc
 protocol
 protobuf
+http
 pthread
+rdkafka++
 )

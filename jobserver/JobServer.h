@@ -4,8 +4,8 @@
 
 class JobServer {
    public:
-    JobServer(LoopPtr loop, const std::string& brokers) : rpcclient_(loop) ,kafkaconsumer_(brokers){}
-    ~JobServer();
+    JobServer(LoopPtr loop, const std::string& brokers) : rpcclient_(this, loop) ,kafkaconsumer_(brokers){}
+    ~JobServer(){};
 
     void Start(){
         kafkaconsumer_.Start();

@@ -1,3 +1,4 @@
+#pragma once
 
 #include <algorithm>
 #include <vector>
@@ -20,7 +21,6 @@
 
 using namespace std;
 
-typedef std::shared_ptr<Buffer> BufferPtr;
 
 class Buffer 
 {
@@ -378,4 +378,6 @@ class Buffer
 
   static const char kCRLF[];
 };
+
+typedef std::shared_ptr<Buffer> BufferPtr;
 

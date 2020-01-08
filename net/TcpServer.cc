@@ -1,5 +1,6 @@
 #include "TcpServer.h"
 #include "RpcSession.h"
+#include "HttpSession.h"
 #include <string>
 
 TcpServer::TcpServer(int thrnum, const std::string &ip, int port)

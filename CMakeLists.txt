@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__FILENAME__='\"$(subst ${CMAKE_CURREN
 
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions -Wno-unused -ffunction-sections -fdata-sections")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fexceptions -static-libstdc++")
@@ -76,9 +76,10 @@ include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
 
 #add_subdirectory(opt)
 add_subdirectory(common)
+add_subdirectory(http)
 add_subdirectory(rpc)
 add_subdirectory(net)
 add_subdirectory(protocol)
-#add_subdirectory(logicserver)
+add_subdirectory(logicserver)
 add_subdirectory(gateserver)
-#add_subdirectory(jobserver)
+add_subdirectory(jobserver)

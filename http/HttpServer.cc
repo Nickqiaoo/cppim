@@ -16,6 +16,13 @@ void HttpServer::start() {
     tcpserver_.start();
 }
 
+void HttpServer::doResponse(HttpResponsePtr response){
+    auto buf = std::make_shared<Buffer>();
+    response->appendToBuffer(buf);
+    auto session = response->getSessionPtr();
+    session->send(buf);
+}
+
 void HttpServer::onMessage(const SessionPtr conn, const BufferPtr buf) {
     auto httpsession = static_pointer_cast<HttpSession>(conn);
     HttpContext* context = httpsession->getContext();
@@ -54,9 +61,3 @@ void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
     }
 }
 
-void doResponse(HttpResponsePtr response){
-    auto buf = std::make_shared<Buffer>();
-    response->appendToBuffer(buf);
-    auto session = response->getSessionPtr();
-    session->send(buf);
-}

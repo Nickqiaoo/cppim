@@ -1,17 +1,20 @@
 #include "LogicServer.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
-#include "util.hpp"
 #include "logic.pb.h"
+#include "util.hpp"
+
+using namespace std::placeholders;
 
 LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport)
-    : httpserver_(thrnum, httpip, httpport), rpcserver_(thrnum, rpcip, rpcport), kafkaproducer_(""){}
+    : httpserver_(thrnum, httpip, httpport), rpcserver_(thrnum, rpcip, rpcport), kafkaproducer_("localhost:9092"), logicservice_(this) {}
 LogicServer::~LogicServer() {}
 
 void LogicServer::Start() {
     httpserver_.start();
     rpcserver_.registerService(&logicservice_);
     rpcserver_.start();
+    httpserver_.RegHandler("/push", std::bind(&LogicServer::PushMsgByKeysHandler, this, _1, _2));
 }
 
 void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response) {
@@ -33,7 +36,7 @@ void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponseP
         }
     }
     if (!keys.empty() && operation != 0) {
-        response->delay();
+        // response->delay();
         PushMsgByKeys(keys, operation, request.body());
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);
@@ -50,7 +53,7 @@ void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::st
     pushmsg.set_operation(op);
     pushmsg.set_server("gate1");
     pushmsg.set_room("1");
-    for(auto& it : keys){
+    for (auto& it : keys) {
         pushmsg.add_keys(it);
     }
     pushmsg.set_msg(msg);

@@ -14,7 +14,7 @@ using namespace std::placeholders;
 
 class LogicRpcClient {
    public:
-    LogicRpcClient(LoopPtr loop) : session_(std::make_shared<Session>(loop, 1)), channel_(new RpcChannel), stub_(channel_.get()) {
+    LogicRpcClient(GateServer* server, LoopPtr loop) :gateserver_(server), session_(std::make_shared<Session>(loop, 1)), channel_(new RpcChannel), stub_(channel_.get()) {
         session_->setConnectionCallback(std::bind(&LogicRpcClient::onConnection, this, _1));
         session_->setMessageCallback(std::bind(&RpcChannel::onMessage, channel_.get(), _1, _2));
         // client_.enableRetry();
@@ -22,10 +22,7 @@ class LogicRpcClient {
 
     void connect(const std::string& ip, int port) { session_->connect(ip,port); }
 
-    void Connect(logic::ConnectReq* request, SessionPtr session) {
-        logic::ConnectReply* response = new logic::ConnectReply;
-        stub_.Connect(NULL, request, response, NewCallback(gateserver_, &GateServer::HandleConnect, response, session));
-    }
+    void Connect(logic::ConnectReq* request, SessionPtr session); 
    private:
     void onConnection(const SessionPtr& conn) {
         LOG_INFO("client onConnection");

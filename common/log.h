@@ -14,7 +14,7 @@
 namespace common {
 
 
-#define __FILENAME__ __FILE__
+//#define __FILENAME__ __FILE__
 class Log {
  public:
   Log();

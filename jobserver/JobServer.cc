@@ -7,7 +7,7 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
         case RdKafka::ERR__TIMED_OUT:
             break;
 
-        case RdKafka::ERR_NO_ERROR:
+        case RdKafka::ERR_NO_ERROR: {
             /* Real message */
             LOG_INFO("Read msg at offset {}", message->offset());
             RdKafka::MessageTimestamp ts;
@@ -25,7 +25,7 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
             }
             LOG_INFO("message len: {} message payload:{}", message->len(), message->payload());
             logic::PushMsg msg;
-            if(msg.ParseFromArray(message->payload(),message->len())){
+            if (msg.ParseFromArray(message->payload(), message->len())) {
                 auto pushmsg = new gate::PushMsgReq();
                 pushmsg->mutable_keys()->CopyFrom(msg.keys());
                 pushmsg->set_protoop(msg.operation());
@@ -35,10 +35,10 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
                 proto->set_body(msg.msg());
 
                 rpcclient_.PushMsg(pushmsg);
-            }else{
+            } else {
                 LOG_ERROR("parse from kafka error");
             }
-            break;
+        } break;
 
         case RdKafka::ERR__PARTITION_EOF:
             /* Last message */
@@ -53,10 +53,8 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
         default:
             /* Errors */
             LOG_ERROR("Consume failed: {}", message->errstr());
-            //run = false;
+            // run = false;
     }
 }
 
-void JobServer::HandlePushMsg(gate::PushMsgReply* response) {
-    LOG_INFO("HandlePushMsg");
-}
+void JobServer::HandlePushMsg(gate::PushMsgReply* response) { LOG_INFO("HandlePushMsg"); }
