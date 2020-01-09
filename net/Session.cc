@@ -12,6 +12,7 @@ void Session::start() {
     asio::ip::tcp::no_delay nodelay(true);
     socket_.set_option(nodelay);
     socket_.set_option(asio::socket_base::keep_alive(true));
+    LOG_INFO("session conected id:{}",id_);
     if (connectioncallback_) {
         connectioncallback_(shared_from_this());
     }
@@ -31,6 +32,8 @@ void Session::read() {
             LOG_ERROR("read error: {}", err.message());
             if(reconnect_){
                 reconnect();
+            }else{
+                close();
             }
             return;
         }

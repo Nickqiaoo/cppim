@@ -47,7 +47,9 @@ void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponseP
     }
 }
 
-void LogicServer::PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg) { PushMsg(keys, op, "gate1", msg); }
+void LogicServer::PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg) {
+    PushMsg(keys, op, "gate1", msg);
+}
 
 void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg) {
     logic::PushMsg pushmsg;

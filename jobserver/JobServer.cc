@@ -3,6 +3,7 @@
 #include "logic.pb.h"
 
 void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
+    LOG_ERROR("message err: {}", message->err());
     switch (message->err()) {
         case RdKafka::ERR__TIMED_OUT:
             break;

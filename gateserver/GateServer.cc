@@ -14,6 +14,7 @@ GateServer::~GateServer() {}
 void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) {
     switch (op) {
         case 7: {
+            LOG_INFO("client onmessage token: {}", body);
             logic::ConnectReq* req = new logic::ConnectReq;
             req->set_server(serverid_);
             req->set_token(body);
@@ -38,14 +39,17 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     std::string roomid = response->roomid();
     for (int i = 0; i < response->accepts_size(); i++) {
     }
+    LOG_INFO("handle connect mid:{} key:{} romid:{}", mid, key, roomid);
     channels_.insert({key, session});
+    LOG_INFO("session size:{}", channels_.size());
     rooms_[roomid].insert(session);
-    clientcodec_.send(session, 8, 0, std::string());
+    clientcodec_.send(session, 8, 0, std::string("success"));
 }
 
 void GateServer::SendToClient(const std::string& key, const gate::Proto& msg) {
     auto it = channels_.find(key);
     if (it != channels_.end()) {
+        LOG_INFO("send message to key:{}",key);
         clientcodec_.send(it->second, msg.op(), msg.seq(), msg.body());
     }
 }

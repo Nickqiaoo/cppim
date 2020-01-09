@@ -5,6 +5,7 @@ void GateServiceImpl::PushMsg(::google::protobuf::RpcController* controller, con
                               ::google::protobuf::Closure* done) {
     LOG_INFO("receive msg:{}", request->proto().body());
     for(int i = 0;i<request->keys_size();i++){
+        LOG_INFO("send message to key:{}",request->keys(i));
         gateserver_->SendToClient(request->keys(i),request->proto());
     }
     done->Run();
