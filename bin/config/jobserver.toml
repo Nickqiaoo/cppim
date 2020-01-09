@@ -1,0 +1,14 @@
+[log]
+    name = "jobserver"
+    path = "log/jobserver.log"
+    level = "trace"
+    flushlevel = "debug"
+    stdout = true
+    thread = 1
+[kafka]
+   topic = "cppim" 
+   brokers = "localhost:9092"
+   group = ""
+[rpcclient]
+    addr = "127.0.0.1"
+    port = 8081

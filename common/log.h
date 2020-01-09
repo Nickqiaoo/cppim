@@ -13,8 +13,10 @@
 
 namespace common {
 
+#ifndef __FILENAME__
+  #define __FILENAME__ __FILE__
+#endif
 
-//#define __FILENAME__ __FILE__
 class Log {
  public:
   Log();

@@ -1,0 +1,19 @@
+[log]
+    name = "logicserver"
+    path = "log/logicserver.log"
+    level = "trace"
+    flushlevel = "debug"
+    stdout = true
+    thread = 1
+[logicserver]
+    netthr = 3
+[httpserver]
+    addr = "127.0.0.1"
+    port = 8082
+[rpcserver]
+    addr = "127.0.0.1"
+    port = 8083
+[kafka]
+    topic = "cppim"
+    brokers = "localhost:9092"
+    

@@ -18,13 +18,14 @@ class ProduceCb : public RdKafka::DeliveryReportCb {
 
 class KafkaProducer {
    public:
-    KafkaProducer(const std::string& broker);
+    KafkaProducer(const std::string& broker, const std::string& topic);
     ~KafkaProducer();
     
-    void Produce(const std::string& topic, const std::string& key, const std::string& value);
+    void Produce(const std::string& key, const std::string& value);
 
    private:
     std::string broker_;
+    std::string topic_;
     std::shared_ptr<RdKafka::Producer> producer_;
     std::shared_ptr<RdKafka::Conf> conf_;
 };

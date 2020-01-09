@@ -6,8 +6,9 @@
 
 using namespace std::placeholders;
 
-LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport)
-    : httpserver_(thrnum, httpip, httpport), rpcserver_(thrnum, rpcip, rpcport), kafkaproducer_("localhost:9092"), logicservice_(this) {}
+LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& brokers,
+                         const std::string& topic)
+    : httpserver_(thrnum, httpip, httpport), rpcserver_(thrnum, rpcip, rpcport), kafkaproducer_(brokers, topic), logicservice_(this) {}
 LogicServer::~LogicServer() {}
 
 void LogicServer::Start() {
@@ -37,7 +38,7 @@ void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponseP
     }
     if (!keys.empty() && operation != 0) {
         // response->delay();
-        LOG_INFO("http request key: {} operation: {}",keys[0], operation);
+        LOG_INFO("http request key: {} operation: {}", keys[0], operation);
         PushMsgByKeys(keys, operation, request.body());
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);
@@ -59,5 +60,5 @@ void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::st
     }
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce("cppim", keys[0], pushmsg.SerializeAsString());
+    kafkaproducer_.Produce(keys[0], pushmsg.SerializeAsString());
 }

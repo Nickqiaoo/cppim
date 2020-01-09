@@ -1,0 +1,18 @@
+[log]
+    name = "gateserver"
+    path = "log/gateserver.log"
+    level = "trace"
+    flushlevel = "debug"
+    stdout = true
+    thread = 1
+[gateserver]
+    netthr = 3
+[tcpserver]
+    addr = "127.0.0.1"
+    port = 8080
+[rpcserver]
+    addr = "127.0.0.1"
+    port = 8081
+[rpcclient]
+    addr = "127.0.0.1"
+    port = 8083

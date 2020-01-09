@@ -16,6 +16,8 @@ build/rpc
 cmake_install.cmake
 CMakeCache.txt
 Makefile
-bin/
+bin/gateserver
+bin/logicserver
+bin/jobserver
 tcpclient
 log/

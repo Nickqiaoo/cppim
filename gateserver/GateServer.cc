@@ -1,9 +1,10 @@
 #include "GateServer.h"
 
-GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport)
+GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport,
+                       const std::string& clientip, int clientport)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
-      rpcclient_(this,loop),
+      rpcclient_(clientip, clientport, this, loop),
       gateservice_(this),
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
     tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
@@ -17,7 +18,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             req->set_server(serverid_);
             req->set_token(body);
             rpcclient_.Connect(req, session);
-        }break;
+        } break;
 
         default:
             break;
@@ -28,7 +29,7 @@ void GateServer::Start() {
     tcpserver_.start();
     rpcserver_.registerService(&gateservice_);
     rpcserver_.start();
-    rpcclient_.connect("127.0.0.1", 8083);
+    rpcclient_.connect();
 }
 
 void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr session) {

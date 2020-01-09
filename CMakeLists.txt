@@ -73,6 +73,7 @@ link_directories(${LIBRARY_OUTPUT_PATH})
 link_directories(/usr/local/lib/)
 
 include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
+include_directories(${CMAKE_SOURCE_DIR}/opt/cpptoml/include/)
 
 #add_subdirectory(opt)
 add_subdirectory(common)

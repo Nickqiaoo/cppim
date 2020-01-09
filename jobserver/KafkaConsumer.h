@@ -66,8 +66,9 @@ public:
 
 class KafkaConsumer{
     public:
-    KafkaConsumer(const std::string& brokers);
+    KafkaConsumer(const std::string& brokers, const std::string& topic);
     ~KafkaConsumer();
+    
     void SubTopic(const std::string& topic){
         topic_.push_back(topic);
         consumer_->subscribe(topic_);
