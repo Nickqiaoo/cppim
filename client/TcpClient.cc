@@ -1,60 +1,36 @@
+#include "TcpClient.h"
+#include <iostream>
+#include "ClientCodec.h"
 #include "Loop.h"
-#include "RpcChannel.h"
-#include "Tcpserver.h"
-#include "echo.pb.h"
-#include "log.h"
 
-#include <stdio.h>
-#include <unistd.h>
-#include <functional>
-
+using namespace std;
 using namespace std::placeholders;
 
-class RpcClient {
+void onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) { cout << "onMessage" << body << endl; }
+
+class Client {
    public:
-    RpcClient(LoopPtr loop) : session_(std::make_shared<Session>(loop, 1)), channel_(new RpcChannel), stub_(channel_.get()) {
-        session_->setConnectionCallback(std::bind(&RpcClient::onConnection, this, _1));
-        session_->setMessageCallback(std::bind(&RpcChannel::onMessage, channel_.get(), _1, _2));
-        // client_.enableRetry();
+    Client(LoopPtr loop, const std::string& ip, int port) : client_(loop, ip, port), codec_(bind(&onClientMessageCallback, _1, _2, _3, _4)) {
+        client_.setMessageCallback(std::bind(&ClientCodec::onMessage, &codec_, _1, _2));
+        client_.setConnectionCallback(std::bind(&Client::onConnection, this, _1));
     }
-
-    void connect() { session_->connect("127.0.0.1", 8080); }
-
-   private:
+    ~Client() {}
+    void connect() { client_.connect(); }
     void onConnection(const SessionPtr& conn) {
         LOG_INFO("client onConnection");
-
-        for (int i = 0; i < 1000; i++) {
-            channel_->setConnection(conn);
-            echo::EchoRequest request;
-            request.set_msg("hello");
-            echo::EchoResponse* response = new echo::EchoResponse;
-            stub_.Echo(NULL, &request, response, NewCallback(this, &RpcClient::echo, response));
-        }
+        codec_.send(client_.getSession(), 1, 1, "test");
     }
 
-    void echo(echo::EchoResponse* resp) {
-        echo::EchoRequest request;
-        request.set_msg("hello");
-        echo::EchoResponse* response = new echo::EchoResponse;
-        stub_.Echo(NULL, &request, response, NewCallback(this, &RpcClient::echo, response));
-    }
-
-    SessionPtr session_;
-    RpcChannelPtr channel_;
-    echo::EchoService::Stub stub_;
+   private:
+    TcpClient client_;
+    ClientCodec codec_;
 };
 
-typedef std::shared_ptr<RpcClient> RpcClientPtr;
-
-int main(int argc, char* argv[]) {
+int main() {
     common::Log::Instance().Init("tcpclient", "./clientlog", "trace", "debug", true, 1);
     auto loop = std::make_shared<Loop>();
-    std::vector<RpcClientPtr> clientvec;
-    for (int i = 0; i < 100; i++) {
-        clientvec.emplace_back(std::make_shared<RpcClient>(loop));
-        clientvec[i]->connect();
-    }
+    Client client(loop, "127.0.0.1", 8080);
+    client.connect();
     loop->start();
     while (1) {
         sleep(100);

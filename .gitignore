@@ -13,6 +13,7 @@ build/logicserver
 build/net
 build/protocol
 build/rpc
+build/client
 cmake_install.cmake
 CMakeCache.txt
 Makefile

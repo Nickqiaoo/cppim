@@ -4,10 +4,17 @@
 class TcpClient {
    public:
     TcpClient(LoopPtr loop, const std::string& ip, int port) : ip_(ip), port_(port), session_(std::make_shared<Session>(loop)) {}
-    ~TcpClient();
+    ~TcpClient(){};
     void connect() { session_->connect(ip_, port_); }
-    void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
-    void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
+    void setMessageCallback(const onMessageCallback& cb) {
+        messagecallback_ = cb;
+        session_->setMessageCallback(messagecallback_);
+    }
+    void setConnectionCallback(const onConnectionCallback& cb) {
+        connectioncallback_ = cb;
+        session_->setConnectionCallback(connectioncallback_);
+    }
+    SessionPtr getSession() { return session_; }
 
    private:
     std::string ip_;

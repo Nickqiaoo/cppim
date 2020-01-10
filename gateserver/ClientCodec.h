@@ -48,7 +48,7 @@ class ClientCodec {
         buf->appendInt32(op);
         buf->appendInt32(id);
         buf->append(body.c_str(),body.size());
-        int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes())) + 4;
+        int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()) + 4);
         buf->prepend(&len, sizeof len);
     }
 

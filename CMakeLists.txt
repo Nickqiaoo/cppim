@@ -32,7 +32,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wunreachable-code -Woverloa
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wdouble-promotion  -g -ggdb -fpic -fPIC")
 
 #release
-set(CMAKE_CXX_FLAGS_RELEASE "ENV${CXXFLAGS} -DNDEBUG -Os -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -DNDEBUG -Os -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wextra -Wpointer-arith")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wdouble-promotion -Woverloaded-virtual")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -fpic -fPIC")
@@ -77,6 +77,7 @@ include_directories(${CMAKE_SOURCE_DIR}/opt/cpptoml/include/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/)
 
 #add_subdirectory(opt)
+add_subdirectory(client)
 add_subdirectory(common)
 add_subdirectory(http)
 add_subdirectory(rpc)
