@@ -22,6 +22,9 @@ class Session : public std::enable_shared_from_this<Session> {
     void setConnectionCallback(const onConnectionCallback& cb){
       connectioncallback_ = cb;
     }
+    void setDisconnectCallback(const onDisconnectCallback& cb){
+      disconnectcallback_ = cb;
+    }
 
     void send(BufferPtr buffer);
     void connect(const string& ip, int port);
@@ -45,4 +48,5 @@ class Session : public std::enable_shared_from_this<Session> {
     std::vector<BufferPtr> tmp_queue_;
     onMessageCallback messagecallback_;
     onConnectionCallback connectioncallback_;
+    onDisconnectCallback disconnectcallback_;
 };

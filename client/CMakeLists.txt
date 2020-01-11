@@ -5,7 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/net/)
 include_directories(${CMAKE_SOURCE_DIR}/protocol/)
 include_directories(${CMAKE_SOURCE_DIR}/gateserver/)
 
-add_executable(tcpclient tcpclient.cc)
+add_executable(tcpclient TcpClient.cc)
 target_link_libraries(tcpclient
 net
 common

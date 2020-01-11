@@ -15,16 +15,21 @@ class TcpServer {
     void start();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
     void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
+    void setDisconnectCallback(const onDisconnectCallback& cb) { disconnectcallback_ = cb; }
 
    private:
     template <typename T>
     SessionPtr newSession();
+    
+    void DefaultDisconnectCallback(int id);
 
    private:
     std::map<int, SessionPtr> connections_;
     uint64_t sessionid_{0};
     LoopMgr loopmgr_;
     Acceptor acceptor_;
+    std::mutex mutex_;
     onConnectionCallback connectioncallback_;
     onMessageCallback messagecallback_;
+    onDisconnectCallback disconnectcallback_;
 };

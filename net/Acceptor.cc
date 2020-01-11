@@ -28,6 +28,7 @@ void Acceptor::accept() {
         if (!err) {
             session->start();
         } else {
+            session->close();
         }
         accept();
     });

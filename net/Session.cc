@@ -5,7 +5,9 @@
 #include <iostream>
 
 Session::Session(LoopPtr loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()), timer_(loop->ios()) {}
-Session::~Session() {}
+Session::~Session() {
+    LOG_INFO("session destroy,id:{}",id_);
+}
 
 void Session::start() {
     socket_.non_blocking(true);
@@ -80,6 +82,7 @@ void Session::write() {
             write();
         } else {
             LOG_ERROR("write error: {}", err.message());
+            close();
             return;
         }
     });
@@ -117,6 +120,7 @@ void Session::reconnect() {
 }
 
 void Session::close() {
+    disconnectcallback_(id_);
     auto self(shared_from_this());
     loop_->runInLoop([this, self]() { socket_.close(); });
 }
