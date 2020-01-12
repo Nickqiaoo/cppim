@@ -2,6 +2,15 @@
 #include "log.h"
 #include "cpptoml.h"
 
+#ifdef GPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
+static void onsignal(int s){
+    ProfilerStop();
+    exit(1);
+}
+
 int main() {
     auto config = cpptoml::parse_file("config/logicserver.toml");
     auto logconfig = config->get_table("log");
@@ -13,6 +22,10 @@ int main() {
     common::Log::Instance().Init(*logconfig->get_as<std::string>("name"), *logconfig->get_as<std::string>("path"),
                                  *logconfig->get_as<std::string>("level"), *logconfig->get_as<std::string>("flushlevel"),
                                  *logconfig->get_as<bool>("stdout"), *logconfig->get_as<int>("thread"));
+    #ifdef GPERFTOOLS
+    signal(SIGINT,onsignal);
+    ProfilerStart("logic.prof");
+    #endif
     LogicServer server(*logicconfig->get_as<int>("netthr"), *httpconfig->get_as<std::string>("addr"), *httpconfig->get_as<int>("port"),
                       *rpcconfig->get_as<std::string>("addr"), *rpcconfig->get_as<int>("port"), *kafkaconfig->get_as<std::string>("brokers"),
                       *kafkaconfig->get_as<std::string>("topic"));

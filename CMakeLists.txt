@@ -25,6 +25,14 @@ if(OPEN_MEMORY_CHECK)
   message(STATUS "Open memory check")
 endif(OPEN_MEMORY_CHECK)
 
+#gperftools
+if(GPERFTOOLS)
+  add_definitions(-DGPERFTOOLS)
+  link_libraries(tcmalloc)
+  link_libraries(profiler)
+  message(STATUS "Open gperftools")
+endif(GPERFTOOLS)
+
 #debug
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -DDEBUG -O0 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wpointer-arith")

@@ -2,6 +2,15 @@
 #include "cpptoml.h"
 #include "log.h"
 
+#ifdef GPERFTOOLS
+#include <gperftools/profiler.h>
+#endif
+
+static void onsignal(int s){
+    ProfilerStop();
+    exit(1);
+}
+
 int main() {
     auto config = cpptoml::parse_file("config/gateserver.toml");
     auto logconfig = config->get_table("log");
@@ -13,14 +22,21 @@ int main() {
     common::Log::Instance().Init(*logconfig->get_as<std::string>("name"), *logconfig->get_as<std::string>("path"),
                                  *logconfig->get_as<std::string>("level"), *logconfig->get_as<std::string>("flushlevel"),
                                  *logconfig->get_as<bool>("stdout"), *logconfig->get_as<int>("thread"));
+    #ifdef GPERFTOOLS
+    signal(SIGINT,onsignal);
+    ProfilerStart("gate.prof");
+    #endif
     auto loop = std::make_shared<Loop>();
     GateServer server(loop, *gateconfig->get_as<int>("netthr"), *tcpconfig->get_as<std::string>("addr"), *tcpconfig->get_as<int>("port"),
                       *rpcconfig->get_as<std::string>("addr"), *rpcconfig->get_as<int>("port"), *clientconfig->get_as<std::string>("addr"),
                       *clientconfig->get_as<int>("port"));
     server.Start();
     loop->start();
-    while (1) {
-        sleep(100);
+    while (1) { 
+        sleep(30);
     }
+    #ifdef GPERFTOOLS
+    ProfilerStop();
+    #endif
     return 0;
 }

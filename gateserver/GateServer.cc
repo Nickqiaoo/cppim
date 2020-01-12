@@ -22,6 +22,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
         } break;
 
         default:
+            clientcodec_.send(session,1,1,"test");
             break;
     }
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
 make clean
 rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake Makfile
-cmake .. -DCMAKE_BUILD_TYPE=Release -DOPEN_MEMORY_CHECK=false
+cmake .. -DCMAKE_BUILD_TYPE=Release -DOPEN_MEMORY_CHECK=false -DGPERFTOOLS=true
 make -j8
