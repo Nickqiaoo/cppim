@@ -70,9 +70,16 @@ uint64_t asUInt64(const char* buf) {
 }
 
 void RpcCodec::onMessage(const SessionPtr conn, Buffer* buf) {
-    LOG_INFO("rpc onMessage");
+    //LOG_INFO("rpc onMessage");
+    bool flag=0;
+    LOG_INFO("buf size:{},num:{}",buf->readableBytes(),num);
+    num++;
+    if(num>10){
+        exit(1);
+    }
     while (buf->readableBytes() >= kMinMessageLen + kHeaderLen) {
         const int32_t len = buf->peekInt32();
+        LOG_INFO("len:{}",len);
         if (len > kMaxMessageLen || len < kMinMessageLen) {
             errorCallback_(conn, buf, kInvalidLength);
             break;
@@ -102,6 +109,10 @@ void RpcCodec::onMessage(const SessionPtr conn, Buffer* buf) {
             }
 
             if (errorCode == kNoError) {
+                if(flag==0){
+                    num--;
+                }
+                flag=1;
                 messageCallback_(isresponse, id, service, method, conn, data, datalen);
                 buf->retrieve(kHeaderLen + len);
             } else {

@@ -25,7 +25,7 @@ void Session::read() {
     auto self(shared_from_this());
     socket_.async_read_some(asio::buffer(read_buf_.beginWrite(), read_buf_.writableBytes()), [self, this](const asio::error_code &err, size_t size) {
         if (!err) {
-            // std::cout << "recieve data" << std::endl;
+            LOG_INFO("receive data,size:{}",size);
             read_buf_.hasWritten(size);
             messagecallback_(self, &read_buf_);
             read();
