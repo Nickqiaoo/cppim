@@ -38,7 +38,7 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method, 
     codec_.send(id, name, conn_, *request);
 }
 
-void RpcChannel::onMessage(const SessionPtr& conn, BufferPtr buf) { codec_.onMessage(conn, buf); }
+void RpcChannel::onMessage(const SessionPtr conn, Buffer* buf) { codec_.onMessage(conn, buf); }
 
 void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
                               const char* data, int32_t datalen) {

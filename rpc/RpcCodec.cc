@@ -53,7 +53,7 @@ const string& RpcCodec::errorCodeToString(ErrorCode errorCode) {
     }
 }
 
-void RpcCodec::defaultErrorCallback(const SessionPtr& conn, BufferPtr buf, ErrorCode errorCode) {
+void RpcCodec::defaultErrorCallback(const SessionPtr conn, Buffer* buf, ErrorCode errorCode) {
     LOG_INFO("parse message error");
 }
 
@@ -69,7 +69,7 @@ uint64_t asUInt64(const char* buf) {
     return sockets::networkToHost64(be64);
 }
 
-void RpcCodec::onMessage(const SessionPtr& conn, BufferPtr buf) {
+void RpcCodec::onMessage(const SessionPtr conn, Buffer* buf) {
     while (buf->readableBytes() >= kMinMessageLen + kHeaderLen) {
         const int32_t len = buf->peekInt32();
         if (len > kMaxMessageLen || len < kMinMessageLen) {

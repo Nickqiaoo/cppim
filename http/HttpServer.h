@@ -20,7 +20,7 @@ class HttpServer {
 
    private:
     void onConnection(const SessionPtr& conn);
-    void onMessage(const SessionPtr, const BufferPtr);
+    void onMessage(const SessionPtr, Buffer*);
     void onRequest(const HttpSessionPtr& conn, const HttpRequest& req);
 
    private:

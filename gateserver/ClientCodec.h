@@ -12,8 +12,7 @@ class ClientCodec {
 
     explicit ClientCodec(const ClientMessageCallback& cb) : messageCallback_(cb) {}
 
-    void onMessage(const SessionPtr conn, BufferPtr buf) {
-        /*
+    void onMessage(const SessionPtr conn, Buffer* buf) {
         while (buf->readableBytes() >= kHeaderLen)
         {
             const size_t len = buf->peekInt32();
@@ -34,8 +33,6 @@ class ClientCodec {
                 break;
             }
         }
-        */
-       conn->send(buf);
     }
 
     void send(const SessionPtr conn, int op, int id, const std::string& body) {

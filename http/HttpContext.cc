@@ -36,7 +36,7 @@ bool HttpContext::parseRequestLine(const char *begin, const char *end) {
     return success;
 }
 
-bool HttpContext::parseRequest(BufferPtr buf) {
+bool HttpContext::parseRequest(Buffer* buf) {
     bool ok = true;
     bool hasMore = true;
     while (hasMore) {
@@ -75,9 +75,10 @@ bool HttpContext::parseRequest(BufferPtr buf) {
         } else if (state_ == kExpectBody) {
             int contentlength = atoi(request_.getHeader("Content-Length").c_str());
             if (contentlength > 0) {
-                if (buf->beginWrite() - buf->peek() >= contentlength) {
+                if (buf->readableBytes() >= contentlength) {
                     state_ = kGotAll;
                     request_.setBody(buf->peek(), buf->peek() + contentlength);
+                    buf->retrieve(contentlength);
                     hasMore = false;
                 } else {
                     hasMore = false;

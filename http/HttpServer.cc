@@ -23,7 +23,7 @@ void HttpServer::doResponse(HttpResponsePtr response){
     session->send(buf);
 }
 
-void HttpServer::onMessage(const SessionPtr conn, const BufferPtr buf) {
+void HttpServer::onMessage(const SessionPtr conn, Buffer* buf) {
     auto httpsession = static_pointer_cast<HttpSession>(conn);
     HttpContext* context = httpsession->getContext();
 

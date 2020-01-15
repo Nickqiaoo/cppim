@@ -18,7 +18,7 @@ class HttpContext {
     // default copy-ctor, dtor and assignment are fine
 
     // return false if any error
-    bool parseRequest(BufferPtr buf);
+    bool parseRequest(Buffer* buf);
 
     bool gotAll() const { return state_ == kGotAll; }
 

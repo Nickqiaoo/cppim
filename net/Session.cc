@@ -27,9 +27,7 @@ void Session::read() {
         if (!err) {
             // std::cout << "recieve data" << std::endl;
             read_buf_.hasWritten(size);
-            messagecallback_(self, std::make_shared<Buffer>(read_buf_));
-            //FIXME 最后的消息不够一个包
-            read_buf_.retrieve(size);
+            messagecallback_(self, &read_buf_);
             read();
         } else {
             LOG_ERROR("read error: {}", err.message());

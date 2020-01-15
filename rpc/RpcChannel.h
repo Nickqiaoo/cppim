@@ -110,8 +110,8 @@ class RpcChannel : public ::google::protobuf::RpcChannel
                   ::google::protobuf::Message* response,
                   ::google::protobuf::Closure* done) override;
 
-  void onMessage(const SessionPtr& conn,
-                 BufferPtr buf);
+  void onMessage(const SessionPtr conn,
+                 Buffer* buf);
 
  private:
   void onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,

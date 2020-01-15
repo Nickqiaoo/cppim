@@ -14,7 +14,7 @@ namespace common {
 //  uint64_t id   the highest bit: 0 request, 1 response
 //  int32_t namelen
 //  char    service:method[namelen]
-//  char    protobuf[len-namelen-16]
+//  char    protobuf[len-namelen-12]
 
 typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
@@ -31,13 +31,13 @@ class RpcCodec {
 
     typedef std::function<void(bool, uint64_t, const std::string&, const std::string&, const SessionPtr&, const char*, int32_t)> ProtobufMessageCallback;
 
-    typedef std::function<void(const SessionPtr&, BufferPtr, ErrorCode)> ErrorCallback;
+    typedef std::function<void(const SessionPtr, Buffer*, ErrorCode)> ErrorCallback;
 
     explicit RpcCodec(const ProtobufMessageCallback& messageCb) : messageCallback_(messageCb), errorCallback_(defaultErrorCallback) {}
 
     RpcCodec(const ProtobufMessageCallback& messageCb, const ErrorCallback& errorCb) : messageCallback_(messageCb), errorCallback_(errorCb) {}
 
-    void onMessage(const SessionPtr& conn, BufferPtr buf);
+    void onMessage(const SessionPtr conn, Buffer* buf);
 
     void send(uint64_t id, const std::string& name, const SessionPtr& conn, const google::protobuf::Message& message) {
         // FIXME: serialize to TcpConnection::outputBuffer()
@@ -54,7 +54,7 @@ class RpcCodec {
     static MessagePtr parse(const char* buf, int len, ErrorCode* errorCode);
 
    private:
-    static void defaultErrorCallback(const SessionPtr&, BufferPtr, ErrorCode);
+    static void defaultErrorCallback(const SessionPtr, Buffer*, ErrorCode);
 
     ProtobufMessageCallback messageCallback_;
     ErrorCallback errorCallback_;
