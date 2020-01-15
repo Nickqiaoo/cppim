@@ -42,7 +42,7 @@ class RpcCodec {
     void send(uint64_t id, const std::string& name, const SessionPtr& conn, const google::protobuf::Message& message) {
         // FIXME: serialize to TcpConnection::outputBuffer()
         //Buffer buf;
-        LOG_INFO("send messageid {}", id);
+        //LOG_INFO("send messageid {}", id);
         auto buf = std::make_shared<Buffer>();
         fillEmptyBuffer(buf, message, id, name);
         conn->send(buf);

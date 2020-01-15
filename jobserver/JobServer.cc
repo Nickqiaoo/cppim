@@ -3,7 +3,7 @@
 #include "logic.pb.h"
 
 void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
-    LOG_ERROR("message err: {}", message->err());
+    // LOG_ERROR("message err: {}", message->err());
     switch (message->err()) {
         case RdKafka::ERR__TIMED_OUT:
             break;
@@ -24,7 +24,7 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
             if (message->key()) {
                 LOG_INFO("Key: {}", *message->key());
             }
-            LOG_INFO("message len: {} message payload:{}", message->len(), message->payload());
+            LOG_INFO("message len: {}", message->len());
             logic::PushMsg msg;
             if (msg.ParseFromArray(message->payload(), message->len())) {
                 auto pushmsg = new gate::PushMsgReq();

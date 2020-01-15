@@ -13,6 +13,7 @@ class ClientCodec {
     explicit ClientCodec(const ClientMessageCallback& cb) : messageCallback_(cb) {}
 
     void onMessage(const SessionPtr conn, Buffer* buf) {
+        LOG_INFO("on message");
         while (buf->readableBytes() >= kHeaderLen)
         {
             const size_t len = buf->peekInt32();
@@ -36,7 +37,7 @@ class ClientCodec {
     }
 
     void send(const SessionPtr conn, int op, int id, const std::string& body) {
-        LOG_INFO("send messageid {}",id);
+        //LOG_INFO("send messageid {}",id);
         auto buf = std::make_shared<Buffer>();
         fillEmptyBuffer(buf, op, id, body);
         conn->send(buf);

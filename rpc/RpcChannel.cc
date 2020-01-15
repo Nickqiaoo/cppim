@@ -26,7 +26,7 @@ RpcChannel::~RpcChannel() {
 // method->input_type() and method->output_type().
 void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method, google::protobuf::RpcController* controller,
                             const ::google::protobuf::Message* request, ::google::protobuf::Message* response, ::google::protobuf::Closure* done) {
-    LOG_INFO("callmethod");
+    //LOG_INFO("callmethod");
     uint64_t id = id_.fetch_add(1);
     std::string name = method->service()->full_name() + ':' + method->name();
 

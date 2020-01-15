@@ -42,7 +42,7 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     }
     LOG_INFO("handle connect mid:{} key:{} romid:{}", mid, key, roomid);
     channels_.insert({key, session});
-    LOG_INFO("session size:{}", channels_.size());
+    //LOG_INFO("session size:{}", channels_.size());
     rooms_[roomid].insert(session);
     clientcodec_.send(session, 8, 0, std::string("success"));
 }

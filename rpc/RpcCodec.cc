@@ -54,7 +54,7 @@ const string& RpcCodec::errorCodeToString(ErrorCode errorCode) {
 }
 
 void RpcCodec::defaultErrorCallback(const SessionPtr conn, Buffer* buf, ErrorCode errorCode) {
-    LOG_INFO("parse message error");
+    LOG_ERROR("parse message error");
 }
 
 int32_t asInt32(const char* buf) {
@@ -70,6 +70,7 @@ uint64_t asUInt64(const char* buf) {
 }
 
 void RpcCodec::onMessage(const SessionPtr conn, Buffer* buf) {
+    LOG_INFO("rpc onMessage");
     while (buf->readableBytes() >= kMinMessageLen + kHeaderLen) {
         const int32_t len = buf->peekInt32();
         if (len > kMaxMessageLen || len < kMinMessageLen) {
@@ -105,6 +106,7 @@ void RpcCodec::onMessage(const SessionPtr conn, Buffer* buf) {
                 buf->retrieve(kHeaderLen + len);
             } else {
                 errorCallback_(conn, buf, errorCode);
+                buf->retrieve(kHeaderLen + len);
                 break;
             }
         } else {

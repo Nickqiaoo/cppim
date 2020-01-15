@@ -25,8 +25,11 @@ class LogicRpcClient {
 
     void Connect(logic::ConnectReq* request, SessionPtr session);
 
+    bool Connected() { return isconnected_; }
+
    private:
     void onConnection(const SessionPtr& conn) {
+        isconnected_ = true;
         LOG_INFO("client onConnection");
         channel_->setConnection(conn);
     }
@@ -34,6 +37,7 @@ class LogicRpcClient {
    private:
     std::string ip_;
     int port_;
+    bool isconnected_{false};
     GateServer* gateserver_;
     SessionPtr session_;
     RpcChannelPtr channel_;

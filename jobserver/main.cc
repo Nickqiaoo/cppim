@@ -7,7 +7,10 @@
 #endif
 
 static void onsignal(int s){
+#ifdef GPERFTOOLS
     ProfilerStop();
+#endif
+    exit(1);
 }
 
 int main() {
