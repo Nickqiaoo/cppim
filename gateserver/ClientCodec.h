@@ -13,7 +13,7 @@ class ClientCodec {
     explicit ClientCodec(const ClientMessageCallback& cb) : messageCallback_(cb) {}
 
     void onMessage(const SessionPtr conn, Buffer* buf) {
-        LOG_INFO("on message");
+        //LOG_INFO("on message");
         while (buf->readableBytes() >= kHeaderLen)
         {
             const size_t len = buf->peekInt32();

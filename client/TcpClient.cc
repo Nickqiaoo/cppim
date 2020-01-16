@@ -33,7 +33,8 @@ class Client {
 int main() {
     common::Log::Instance().Init("tcpclient", "./clientlog", "trace", "debug", true, 1);
     auto loop = std::make_shared<Loop>();
-    Client client(loop, "192.168.1.2", 8080);
+    //Client client(loop, "192.168.1.2", 8080);
+    Client client(loop, "127.0.0.1", 8080);
     client.connect();
     loop->start();
     while (1) {

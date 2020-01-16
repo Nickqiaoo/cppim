@@ -14,7 +14,7 @@ void Session::start() {
     asio::ip::tcp::no_delay nodelay(true);
     socket_.set_option(nodelay);
     socket_.set_option(asio::socket_base::keep_alive(true));
-    LOG_INFO("session conected id:{}",id_);
+    LOG_INFO("session connected id:{}",id_);
     if (connectioncallback_) {
         connectioncallback_(shared_from_this());
     }
@@ -25,9 +25,10 @@ void Session::read() {
     auto self(shared_from_this());
     socket_.async_read_some(asio::buffer(read_buf_.beginWrite(), read_buf_.writableBytes()), [self, this](const asio::error_code &err, size_t size) {
         if (!err) {
-            LOG_INFO("receive data,size:{}",size);
+            //LOG_INFO("receive data,size:{}",size);
             read_buf_.hasWritten(size);
             messagecallback_(self, &read_buf_);
+            read_buf_.ensureWritableBytes(size);
             read();
         } else {
             LOG_ERROR("read error: {}", err.message());

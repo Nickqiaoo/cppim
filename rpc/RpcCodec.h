@@ -58,7 +58,6 @@ class RpcCodec {
 
     ProtobufMessageCallback messageCallback_;
     ErrorCallback errorCallback_;
-    int num{0};
     const static int kHeaderLen = sizeof(int32_t);
     const static int kIdLen = sizeof(uint64_t);
     const static int kMinMessageLen = kIdLen + kHeaderLen + 3; // IdLen + nameLen + typeName

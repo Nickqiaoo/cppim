@@ -26,7 +26,7 @@ class Buffer
 {
  public:
   static const size_t kCheapPrepend = 8;
-  static const size_t kInitialSize = 8*1024*1024;
+  static const size_t kInitialSize = 1024;
 
   explicit Buffer(size_t initialSize = kInitialSize)
     : buffer_(kCheapPrepend + initialSize),

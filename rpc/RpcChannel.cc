@@ -42,7 +42,7 @@ void RpcChannel::onMessage(const SessionPtr conn, Buffer* buf) { codec_.onMessag
 
 void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
                               const char* data, int32_t datalen) {
-    LOG_INFO("onRpcMessage id:{} service:{} method:{}",id,servicename,methodname);
+    //LOG_INFO("onRpcMessage id:{} service:{} method:{}",id,servicename,methodname);
     assert(conn == conn_);
     // printf("%s\n", message.DebugString().c_str());
     if (isresponse) {
