@@ -23,7 +23,7 @@ class LogicRpcClient {
 
     void connect() { session_->connect(ip_, port_); }
 
-    void Connect(logic::ConnectReq* request, SessionPtr session);
+    void Connect(logic::ConnectReq* request, logic::ConnectReply* response, google::protobuf::Closure* done);
 
     bool Connected() { return isconnected_; }
 

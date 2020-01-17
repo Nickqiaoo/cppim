@@ -15,10 +15,11 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
     switch (op) {
         case 7: {
             LOG_INFO("client onmessage token: {}", body);
-            logic::ConnectReq* req = new logic::ConnectReq;
-            req->set_server(serverid_);
-            req->set_token(body);
-            rpcclient_.Connect(req, session);
+            logic::ConnectReq* request = new logic::ConnectReq;
+            logic::ConnectReply* response = new logic::ConnectReply;
+            request->set_server(serverid_);
+            request->set_token(body);
+            rpcclient_.Connect(request, response, NewCallback(this,&GateServer::HandleConnect,response,session));
         } break;
 
         default:

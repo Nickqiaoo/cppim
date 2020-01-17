@@ -28,6 +28,7 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
             logic::PushMsg msg;
             if (msg.ParseFromArray(message->payload(), message->len())) {
                 auto pushmsg = new gate::PushMsgReq();
+                gate::PushMsgReply* response = new gate::PushMsgReply;
                 pushmsg->mutable_keys()->CopyFrom(msg.keys());
                 pushmsg->set_protoop(msg.operation());
                 auto proto = pushmsg->mutable_proto();
@@ -35,7 +36,7 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
                 proto->set_op(9);
                 proto->set_body(msg.msg());
 
-                rpcclient_.PushMsg(pushmsg);
+                rpcclient_.PushMsg(pushmsg, response, NewCallback(this, &JobServer::HandlePushMsg, response));
             } else {
                 LOG_ERROR("parse from kafka error");
             }
