@@ -35,6 +35,7 @@ void Session::read() {
             if(reconnect_){
                 reconnect();
             }else{
+                disconnectcallback_(id_);
                 close();
             }
             return;
@@ -81,6 +82,7 @@ void Session::write() {
             }
             write();
         } else {
+            disconnectcallback_(id_);
             LOG_ERROR("write error: {}", err.message());
             close();
             return;
@@ -120,7 +122,6 @@ void Session::reconnect() {
 }
 
 void Session::close() {
-    disconnectcallback_(id_);
     auto self(shared_from_this());
     loop_->runInLoop([this, self]() { socket_.close(); });
 }

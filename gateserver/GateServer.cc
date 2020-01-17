@@ -8,6 +8,7 @@ GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int t
       gateservice_(this),
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
     tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
+    //tcpserver_.setDisconnectCallback();
 }
 GateServer::~GateServer() {}
 
@@ -19,11 +20,11 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             logic::ConnectReply* response = new logic::ConnectReply;
             request->set_server(serverid_);
             request->set_token(body);
-            rpcclient_.Connect(request, response, NewCallback(this,&GateServer::HandleConnect,response,session));
+            rpcclient_.Connect(request, response, NewCallback(this, &GateServer::HandleConnect, response, session));
         } break;
 
         default:
-            clientcodec_.send(session,1,1,"test");
+            clientcodec_.send(session, 1, 1, "test");
             break;
     }
 }
@@ -43,7 +44,7 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     }
     LOG_INFO("handle connect mid:{} key:{} romid:{}", mid, key, roomid);
     channels_.insert({key, session});
-    //LOG_INFO("session size:{}", channels_.size());
+    // LOG_INFO("session size:{}", channels_.size());
     rooms_[roomid].insert(session);
     clientcodec_.send(session, 8, 0, std::string("success"));
 }
@@ -51,7 +52,7 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
 void GateServer::SendToClient(const std::string& key, const gate::Proto& msg) {
     auto it = channels_.find(key);
     if (it != channels_.end()) {
-        LOG_INFO("send message to key:{}",key);
+        LOG_INFO("send message to key:{}", key);
         clientcodec_.send(it->second, msg.op(), msg.seq(), msg.body());
     }
 }

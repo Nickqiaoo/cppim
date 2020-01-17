@@ -1,8 +1,9 @@
-#include "net_define.h"
 #include "HttpContext.h"
 #include "Buffer.h"
+#include "net_define.h"
+#include "util.hpp"
 
-const char Buffer::kCRLF[]= "\r\n";
+const char Buffer::kCRLF[] = "\r\n";
 
 // GET /path?parm HTTP/1.1\r\n
 bool HttpContext::parseRequestLine(const char *begin, const char *end) {
@@ -17,6 +18,14 @@ bool HttpContext::parseRequestLine(const char *begin, const char *end) {
             if (query != space) {
                 request_.setPath(start, query);
                 request_.setQuery(query + 1, space);
+                std::vector<std::string> parmlist;
+                common::split(request_.query(), "&", parmlist);
+                for (auto it : parmlist) {
+                    auto pos = it.find('=');
+                    if (pos != std::string::npos) {
+                        request_.querys().insert({it.substr(0, pos), it.substr(pos + 1)});
+                    }
+                }
             } else {
                 request_.setPath(start, query);
             }
@@ -36,7 +45,7 @@ bool HttpContext::parseRequestLine(const char *begin, const char *end) {
     return success;
 }
 
-bool HttpContext::parseRequest(Buffer* buf) {
+bool HttpContext::parseRequest(Buffer *buf) {
     bool ok = true;
     bool hasMore = true;
     while (hasMore) {

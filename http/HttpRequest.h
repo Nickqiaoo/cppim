@@ -1,14 +1,14 @@
 #pragma once
 
 #include <assert.h>
-#include <map>
 #include <stdio.h>
+#include <map>
 #include <string>
 
 using namespace std;
 
 class HttpRequest {
-  public:
+   public:
     enum Method { kInvalid, kGet, kPost, kHead, kPut, kDelete };
     enum Version { kUnknown, kHttp10, kHttp11 };
 
@@ -42,44 +42,40 @@ class HttpRequest {
     const char *methodString() const {
         const char *result = "UNKNOWN";
         switch (method_) {
-        case kGet:
-            result = "GET";
-            break;
-        case kPost:
-            result = "POST";
-            break;
-        case kHead:
-            result = "HEAD";
-            break;
-        case kPut:
-            result = "PUT";
-            break;
-        case kDelete:
-            result = "DELETE";
-            break;
-        default:
-            break;
+            case kGet:
+                result = "GET";
+                break;
+            case kPost:
+                result = "POST";
+                break;
+            case kHead:
+                result = "HEAD";
+                break;
+            case kPut:
+                result = "PUT";
+                break;
+            case kDelete:
+                result = "DELETE";
+                break;
+            default:
+                break;
         }
         return result;
     }
 
-    void setPath(const char *start, const char *end) {
-        path_.assign(start, end);
-    }
+    void setPath(const char *start, const char *end) { path_.assign(start, end); }
 
     const string &path() const { return path_; }
 
-    void setQuery(const char *start, const char *end) {
-        query_.assign(start, end);
-    }
+    void setQuery(const char *start, const char *end) { query_.assign(start, end); }
 
-    void setBody(const char *start, const char *end) {
-        body_.assign(start, end);
-    }
+    void setBody(const char *start, const char *end) { body_.assign(start, end); }
 
     const string &body() const { return body_; }
 
     const string &query() const { return query_; }
+
+    std::map<string, string> &querys() { return querys_; }
 
     void addHeader(const char *start, const char *colon, const char *end) {
         string field(start, colon);
@@ -103,6 +99,14 @@ class HttpRequest {
         return result;
     }
 
+    string getQuery(const string &field) const {
+        string result;
+        std::map<string, string>::const_iterator it = querys_.find(field);
+        if (it != headers_.end()) {
+            result = it->second;
+        }
+        return result;
+    }
     const std::map<string, string> &headers() const { return headers_; }
 
     void swap(HttpRequest &that) {
@@ -113,11 +117,12 @@ class HttpRequest {
         headers_.swap(that.headers_);
     }
 
-  private:
+   private:
     Method method_;
     Version version_;
     string path_;
     string query_;
     string body_;
+    std::map<string, string> querys_;
     std::map<string, string> headers_;
 };
