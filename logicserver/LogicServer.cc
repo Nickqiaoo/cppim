@@ -14,6 +14,7 @@ LogicServer::~LogicServer() {}
 void LogicServer::Start() {
     httpserver_.RegHandler("/push/keys", std::bind(&LogicServer::PushMsgByKeysHandler, this, _1, _2));
     httpserver_.RegHandler("/push/room", std::bind(&LogicServer::PushMsgByRoomHandler, this, _1, _2));
+    httpserver_.RegHandler("/push/all", std::bind(&LogicServer::PushMsgToAllHandler, this, _1, _2));
     httpserver_.start();
     rpcserver_.registerService(&logicservice_);
     rpcserver_.start();
@@ -52,7 +53,31 @@ void LogicServer::PushMsgByRoomHandler(const HttpRequest& request, HttpResponseP
     }
 }
 
+void LogicServer::PushMsgToAllHandler(const HttpRequest& request, HttpResponsePtr response){
+    int operation = stoi(request.getQuery("operation"));
+    int speed = stoi(request.getQuery("speed"));
+    if (operation != 0 && speed != 0) {
+        // response->delay();
+        LOG_INFO("http request all speed: {} operation: {}", speed, operation);
+        PushMsgToAll(speed, operation, request.body());
+    } else {
+        response->setStatusCode(HttpResponse::k404NotFound);
+        response->setStatusMessage("NotFound");
+        response->send();
+    }
+}
+
 void LogicServer::PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg) { PushMsg(keys, op, "gate1", msg); }
+
+void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg){
+    logic::PushMsg pushmsg;
+    pushmsg.set_type(logic::PushMsg::BROADCAST);
+    pushmsg.set_operation(op);
+    pushmsg.set_speed(speed);
+    pushmsg.set_msg(msg);
+
+    kafkaproducer_.Produce(std::to_string(op), pushmsg.SerializeAsString());
+}
 
 void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::string& msg){
     logic::PushMsg pushmsg;

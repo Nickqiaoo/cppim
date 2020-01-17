@@ -13,10 +13,12 @@ class LogicServer {
     void Start();
     void PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgByRoomHandler(const HttpRequest& request, HttpResponsePtr response);
+    void PushMsgToAllHandler(const HttpRequest& request, HttpResponsePtr response);
 
    private:
     void PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg);
     void PushMsgByRoom(const std::string& room, int op, const std::string& msg);
+    void PushMsgToAll(int speed, int op, const std::string& msg);
     void PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg);
 
    private:
