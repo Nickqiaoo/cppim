@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <assert.h>
 #include <string.h>
