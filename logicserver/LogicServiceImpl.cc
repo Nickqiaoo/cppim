@@ -15,11 +15,17 @@ void LogicServiceImpl::Connect(::google::protobuf::RpcController* controller, co
         response->set_roomid(jsonbody["room_id"]);
         response->set_key(std::to_string(mid));
         std::vector<int> accepts = jsonbody["accepts"];
-        for(auto it : accepts){
+        for (auto it : accepts) {
             response->add_accepts(it);
         }
+        auto serverid = jsonbody["server"];
+        addServerMap(jsonbody["mid"],std::to_string(mid),request->server());
     } catch (std::exception& e) {
         LOG_TRACE("parse json error");
     }
     done->Run();
+}
+
+void LogicServiceImpl::addServerMap(const int mid, const std::string& key, const std::string& server){
+    redisclient_.Execute();
 }

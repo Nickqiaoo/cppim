@@ -7,7 +7,7 @@
 
 class LogicServer {
    public:
-    LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& brokers,
+    LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip, int redisport,const std::string& brokers,
                 const std::string& topic);
     ~LogicServer();
     void Start();

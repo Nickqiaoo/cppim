@@ -6,9 +6,12 @@
 
 using namespace std::placeholders;
 
-LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& brokers,
-                         const std::string& topic)
-    : httpserver_(thrnum, httpip, httpport), rpcserver_(thrnum, rpcip, rpcport), kafkaproducer_(brokers, topic), logicservice_(this) {}
+LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip, int redisport,
+                         const std::string& brokers, const std::string& topic)
+    : httpserver_(thrnum, httpip, httpport),
+      rpcserver_(thrnum, rpcip, rpcport),
+      kafkaproducer_(brokers, topic),
+      logicservice_(this,redisip,redisport) {}
 LogicServer::~LogicServer() {}
 
 void LogicServer::Start() {
@@ -53,7 +56,7 @@ void LogicServer::PushMsgByRoomHandler(const HttpRequest& request, HttpResponseP
     }
 }
 
-void LogicServer::PushMsgToAllHandler(const HttpRequest& request, HttpResponsePtr response){
+void LogicServer::PushMsgToAllHandler(const HttpRequest& request, HttpResponsePtr response) {
     int operation = stoi(request.getQuery("operation"));
     int speed = stoi(request.getQuery("speed"));
     if (operation != 0 && speed != 0) {
@@ -69,7 +72,7 @@ void LogicServer::PushMsgToAllHandler(const HttpRequest& request, HttpResponsePt
 
 void LogicServer::PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg) { PushMsg(keys, op, "gate1", msg); }
 
-void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg){
+void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg) {
     logic::PushMsg pushmsg;
     pushmsg.set_type(logic::PushMsg::BROADCAST);
     pushmsg.set_operation(op);
@@ -79,7 +82,7 @@ void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg){
     kafkaproducer_.Produce(std::to_string(op), pushmsg.SerializeAsString());
 }
 
-void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::string& msg){
+void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::string& msg) {
     logic::PushMsg pushmsg;
     pushmsg.set_type(logic::PushMsg::ROOM);
     pushmsg.set_operation(op);
