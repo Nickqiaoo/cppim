@@ -27,16 +27,7 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
             LOG_INFO("message len: {}", message->len());
             logic::PushMsg msg;
             if (msg.ParseFromArray(message->payload(), message->len())) {
-                auto pushmsg = new gate::PushMsgReq();
-                gate::PushMsgReply* response = new gate::PushMsgReply;
-                pushmsg->mutable_keys()->CopyFrom(msg.keys());
-                pushmsg->set_protoop(msg.operation());
-                auto proto = pushmsg->mutable_proto();
-                proto->set_ver(1);
-                proto->set_op(9);
-                proto->set_body(msg.msg());
-
-                rpcclient_.PushMsg(pushmsg, response, NewCallback(this, &JobServer::HandlePushMsg, response));
+                push(msg);
             } else {
                 LOG_ERROR("parse from kafka error");
             }
@@ -59,4 +50,30 @@ void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
     }
 }
 
+void JobServer::push(const logic::PushMsg& msg) {
+    switch (msg.type()) {
+        case logic::PushMsg::PUSH:
+            pushKeys(msg.operation(), msg.server(), msg.keys(), msg.msg());
+            break;
+        case logic::PushMsg::ROOM:
+            pushRoom();
+            break;
+        case logic::PushMsg::BROADCAST:
+            break;
+    }
+}
+void JobServer::pushKeys(int32_t operation, const string& server, const google::protobuf::RepeatedPtrField<std::string>& keys, const std::string& msg) {
+    auto pushmsg = new gate::PushMsgReq();
+    gate::PushMsgReply* response = new gate::PushMsgReply;
+    pushmsg->mutable_keys()->CopyFrom(keys);
+    pushmsg->set_protoop(operation);
+    auto proto = pushmsg->mutable_proto();
+    proto->set_ver(1);
+    proto->set_op(9);
+    proto->set_body(msg);
+    rpcclient_.PushMsg(pushmsg, response, NewCallback(this, &JobServer::HandlePushMsg, response));
+}
+void JobServer::pushRoom(){
+
+}
 void JobServer::HandlePushMsg(gate::PushMsgReply* response) { LOG_INFO("HandlePushMsg"); }

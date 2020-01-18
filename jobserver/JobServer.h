@@ -15,8 +15,10 @@ class JobServer {
     void StartConsum() { kafkaconsumer_.Start(); }
 
     void HandleKafkaMessage(RdKafka::Message* message, void* opaque);
+    private:
+    void push(const logic::PushMsg& msg);
+    void pushKeys(int32_t operation, const string& server, const google::protobuf::RepeatedPtrField<std::string>& keys, const std::string& msg);
     void HandlePushMsg(gate::PushMsgReply* response);
-
    private:
     GateRpcClient rpcclient_;
     KafkaConsumer kafkaconsumer_;
