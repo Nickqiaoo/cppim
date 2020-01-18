@@ -11,6 +11,8 @@ TcpServer::TcpServer(int thrnum, const std::string &ip, int port) : loopmgr_(thr
 }
 TcpServer::~TcpServer() {}
 
+void TcpServer::setNewUserSessionCallback() { acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<UserSession>, this)); }
+
 void TcpServer::setNewRpcSessionCalback() { acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<RpcSession>, this)); }
 
 void TcpServer::setNewHttpSessionCalback() { acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<HttpSession>, this)); }
@@ -18,7 +20,7 @@ void TcpServer::setNewHttpSessionCalback() { acceptor_.setNewSessionCallback(std
 void TcpServer::DefaultDisconnectCallback(int id) {
     {
         std::lock_guard<std::mutex> guard(mutex_);
-        //LOG_INFO("connection disconnect, size:{}", connections_.size());
+        // LOG_INFO("connection disconnect, size:{}", connections_.size());
         auto it = connections_.find(id);
         if (it != connections_.end()) {
             connections_.erase(id);
@@ -44,6 +46,6 @@ SessionPtr TcpServer::newSession() {
 }
 
 void TcpServer::start() {
-    acceptor_.start(); 
+    acceptor_.start();
     loopmgr_.start();
 }

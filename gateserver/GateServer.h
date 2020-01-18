@@ -14,6 +14,7 @@ class GateServer {
     ~GateServer();
 
     void HandleConnect(logic::ConnectReply* response, const SessionPtr session);
+    void HandleDisconnect(const SessionPtr session);
     void Start();
     void SendToClient(const std::string& key, const gate::Proto& msg);
     void SendToRoom(const std::string& roomid, const std::string& body);
