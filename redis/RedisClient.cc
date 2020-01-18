@@ -1,6 +1,7 @@
 #include "RedisClient.h"
-#include "log.h"
-#include <vector>
+#include <algorithm>
+#include <cstring>
+//#include "log.h"
 
 bool RedisClient::Connect() {
     struct timeval tv = {2, 500000};  // 2.5secs
@@ -14,6 +15,14 @@ bool RedisClient::Connect() {
         return false;
     }
     return true;
+}
+
+std::shared_ptr<redisReply> RedisClient::Execute(const std::string& cmd) {
+    if (!Active()) {
+        return nullptr;
+    }
+    redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(context_, cmd.c_str()));
+    return std::shared_ptr<redisReply>(reply, [](redisReply* p) { freeReplyObject(p); });
 }
 
 std::shared_ptr<redisReply> RedisClient::Execute(const std::vector<std::string>& cmd) {
@@ -42,7 +51,7 @@ void RedisClient::PipeLine(const std::vector<std::string>& cmd) {
         }
         if (REDIS_REPLY_STATUS == reply->type && (strcasecmp(reply->str, "OK") == 0)) {
         } else {
-            LOG_ERROR("redis pipeline execute error:{}",reply->str());
+            //LOG_ERROR("redis pipeline execute error:{}", reply->str);
         }
         freeReplyObject(reply);
     }

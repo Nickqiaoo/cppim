@@ -1,5 +1,7 @@
 #include <hiredis/hiredis.h>
 #include <string>
+#include <vector>
+#include <memory>
 
 class RedisClient {
    public:
@@ -7,6 +9,7 @@ class RedisClient {
     ~RedisClient() {}
 
     bool Connect();
+    std::shared_ptr<redisReply> Execute(const std::string& cmd);
     std::shared_ptr<redisReply> Execute(const std::vector<std::string>& cmd);
     void PipeLine(const std::vector<std::string>& cmd);
 

@@ -27,5 +27,6 @@ void LogicServiceImpl::Connect(::google::protobuf::RpcController* controller, co
 }
 
 void LogicServiceImpl::addServerMap(const int mid, const std::string& key, const std::string& server){
-    redisclient_.Execute();
+    std::string str = fmt::format("HSET mid_{} {} {}",mid,key, server);
+    redisclient_.Execute(str);  
 }
