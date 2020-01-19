@@ -19,7 +19,8 @@ class LogicServer {
 
    private:
     int64_t getMilliSecond();
-    void PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg);
+    void PushMsgByKeys(const vector<std::string>& keys, int op, const std::string& msg);
+    void PushMsgByMids(const vector<int32_t>& mids,int op, const std::string& msg);
     void PushMsgByRoom(const std::string& room, int op, const std::string& msg);
     void PushMsgToAll(int speed, int op, const std::string& msg);
     void PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg);

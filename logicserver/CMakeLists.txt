@@ -21,4 +21,5 @@ pthread
 rdkafka++
 redis
 hiredis
+tcmalloc
 )

@@ -16,4 +16,5 @@ protocol
 protobuf
 rdkafka++
 pthread
+tcmalloc
 )

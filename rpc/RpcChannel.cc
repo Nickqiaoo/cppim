@@ -81,7 +81,7 @@ void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& s
                         // response is deleted in doneCallback
                         // TODO modify closure
                         std::string name = servicename + ":" + methodname + ":" + std::to_string(id);
-                        service->CallMethod(method, NULL, request.get(), response, NewCallback(this, &RpcChannel::doneCallback, response, name));
+                        service->CallMethod(method, NULL, request.get(), response, google::protobuf::internal::NewCallback(this, &RpcChannel::doneCallback, response, name));
                         error = NO_ERROR;
                     }else{
                         error = PARSE_ERROR;

@@ -29,7 +29,7 @@ class RpcClient {
             echo::EchoRequest request;
             request.set_msg("hello");
             echo::EchoResponse* response = new echo::EchoResponse;
-            stub_.Echo(NULL, &request, response, NewCallback(this, &RpcClient::echo, response));
+            stub_.Echo(NULL, &request, response, google::protobuf::internal::NewCallback(this, &RpcClient::echo, response));
         }
     }
 
@@ -37,7 +37,7 @@ class RpcClient {
         echo::EchoRequest request;
         request.set_msg("hello");
         echo::EchoResponse* response = new echo::EchoResponse;
-        stub_.Echo(NULL, &request, response, NewCallback(this, &RpcClient::echo, response));
+        stub_.Echo(NULL, &request, response, google::protobuf::internal::NewCallback(this, &RpcClient::echo, response));
     }
 
     SessionPtr session_;

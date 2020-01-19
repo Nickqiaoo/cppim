@@ -1,6 +1,7 @@
 #include "JobServer.h"
 #include "cpptoml.h"
 #include "log.h"
+#include "gperftools/malloc_extension.h"
 
 #ifdef GPERFTOOLS
 #include <gperftools/profiler.h>
@@ -31,6 +32,9 @@ int main() {
                      *clientconfig->get_as<std::string>("addr"), *clientconfig->get_as<int>("port"));
     server.Start();
     loop->start();
-    server.StartConsum();
+    while(1){
+        MallocExtension::instance()->ReleaseFreeMemory();
+        server.StartConsum();
+    }
     return 0;
 }

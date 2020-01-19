@@ -1,6 +1,7 @@
 #include "LogicServer.h"
 #include "cpptoml.h"
 #include "log.h"
+#include "gperftools/malloc_extension.h"
 
 #ifdef GPERFTOOLS
 #include <gperftools/profiler.h>
@@ -35,7 +36,8 @@ int main() {
                        *logicconfig->get_as<int>("serverid"));
     server.Start();
     while (1) {
-        sleep(100);
+        sleep(30);
+        MallocExtension::instance()->ReleaseFreeMemory();
     }
     return 0;
 }

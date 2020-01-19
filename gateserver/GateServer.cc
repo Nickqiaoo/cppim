@@ -1,14 +1,14 @@
 #include "GateServer.h"
 #include "UserSession.h"
 
-GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport,
-                       const std::string& clientip, int clientport, const std::string& serverid)
+GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
+                       int clientport, const std::string& serverid)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
       rpcclient_(clientip, clientport, this, loop),
-      serverid_(serverid),
       gateservice_(this),
-      clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
+      clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)),
+      serverid_(serverid) {
     tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
     tcpserver_.setUserDisconnectCallback(std::bind(&GateServer::HandleDisconnect, this, _1));
 }
@@ -22,7 +22,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             logic::ConnectReply* response = new logic::ConnectReply;
             request->set_server(serverid_);
             request->set_token(body);
-            rpcclient_.Connect(request, response, NewCallback(this, &GateServer::HandleConnect, response, session));
+            rpcclient_.Connect(request, response, google::protobuf::internal::NewCallback(this, &GateServer::HandleConnect, response, session));
         } break;
 
         default:

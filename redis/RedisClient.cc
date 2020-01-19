@@ -56,6 +56,36 @@ void RedisClient::PipeLine(const std::vector<std::string>& cmd) {
         freeReplyObject(reply);
     }
 }
+
+std::vector<std::string> RedisClient::MGet(const std::vector<std::string>& cmd) {
+    std::vector<std::string> command;
+    command.emplace_back("MGET");
+    for (auto elem : cmd) {
+        command.emplace_back(std::move(elem));
+    }
+    auto reply = Execute(command);
+    command.clear();
+    if (reply) {
+        if (reply->type == REDIS_REPLY_NIL) {
+        } else if (reply->type == REDIS_REPLY_ARRAY) {
+            redisReply* rep;
+            for (size_t i = 0; i < reply->elements; i++) {
+                rep = reply->element[i];
+                if (rep->type == REDIS_REPLY_STRING) {
+                    command.emplace_back(rep->str, rep->len);
+                } else if (rep->type == REDIS_REPLY_INTEGER) {
+                    command.emplace_back(std::to_string(rep->integer));
+                }
+            }
+        } else {
+            LOG_ERROR("redis execute error:{}", reply->str);
+        }
+    } else {
+        LOG_ERROR("redis connect error:{}");
+    }
+    return command;
+}
+
 bool RedisClient::Auth() {
     if (passwd_.empty()) {
         return true;

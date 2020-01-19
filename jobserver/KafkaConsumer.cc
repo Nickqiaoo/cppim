@@ -14,9 +14,7 @@ KafkaConsumer::KafkaConsumer(const std::string& brokers, const std::string& topi
 KafkaConsumer::~KafkaConsumer() { consumer_->close(); }
 
 void KafkaConsumer::Start() {
-    while (1) {
         RdKafka::Message* msg = consumer_->consume(100);
         messagecb_(msg, NULL);
         delete msg;
-    }
 }

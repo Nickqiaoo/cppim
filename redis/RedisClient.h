@@ -12,7 +12,8 @@ class RedisClient {
     std::shared_ptr<redisReply> Execute(const std::string& cmd);
     std::shared_ptr<redisReply> Execute(const std::vector<std::string>& cmd);
     void PipeLine(const std::vector<std::string>& cmd);
-
+    std::vector<std::string> MGet(const std::vector<std::string>& cmd);
+    
    private:
     bool Auth();
     bool Ping();

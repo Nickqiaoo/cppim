@@ -6,12 +6,12 @@
 
 using namespace std::placeholders;
 
-LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip,
-                         int redisport, const std::string& brokers, const std::string& topic, int serverid)
+LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip, int redisport,
+                         const std::string& brokers, const std::string& topic, int serverid)
     : serverid_(serverid),
       httpserver_(thrnum, httpip, httpport),
       rpcserver_(thrnum, rpcip, rpcport),
-      redisclient_(redisip,redisport),
+      redisclient_(redisip, redisport),
       kafkaproducer_(brokers, topic),
       logicservice_(this, redisip, redisport) {}
 LogicServer::~LogicServer() {}
@@ -35,6 +35,25 @@ void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponseP
         // response->delay();
         LOG_INFO("http request key: {} operation: {}", keys[0], operation);
         PushMsgByKeys(keys, operation, request.body());
+    } else {
+        response->setStatusCode(HttpResponse::k404NotFound);
+        response->setStatusMessage("NotFound");
+        response->send();
+    }
+}
+
+void LogicServer::PushMsgByMidsHandler(const HttpRequest& request, HttpResponsePtr response) {
+    std::vector<std::string> mids;
+    std::vector<int32_t> midsvec;
+    int operation = stoi(request.getQuery("operation"));
+    common::split(request.getQuery("mids"), ",", mids);
+    for(auto elem : mids){
+        midsvec.push_back(stoi(elem));
+    }
+    if (!mids.empty() && operation != 0) {
+        // response->delay();
+        LOG_INFO("http request key: {} operation: {}", mids[0], operation);
+        PushMsgByMids(midsvec, operation, request.body());
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);
         response->setStatusMessage("NotFound");
@@ -73,18 +92,35 @@ void LogicServer::PushMsgToAllHandler(const HttpRequest& request, HttpResponsePt
     }
 }
 
-void LogicServer::PushMsgByKeys(const std::vector<std::string>& keys, int op, const string& msg) { 
+void LogicServer::PushMsgByKeys(const std::vector<std::string>& keys, int op, const string& msg) {
     std::vector<std::string> cmd;
-    cmd.emplace_back("MGET");
-    for(auto it : keys){
+    for (auto it : keys) {
         cmd.emplace_back(logicservice_.keyKeyServer(it));
     }
-    auto reply = redisclient_.Execute(cmd);
-    std::unordered_map<std::string,std::vector<std::string>> serverKeys;
+    auto reply = redisclient_.MGet(cmd);
+    std::unordered_map<std::string, std::vector<std::string>> serverKeys;
+    for (size_t i = 0; i < reply.size(); i++) {
+        serverKeys[reply[i]].push_back(cmd[i]);
+    }
 
+    for (auto elem : serverKeys) {
+        PushMsg(elem.second, op, elem.first, msg);
+    }
+}
 
-    for(auto it : serverKeys){
-        PushMsg(it.second, op, it.first, msg); 
+void LogicServer::PushMsgByMids(const std::vector<int32_t>& mids, int op, const string& msg) {
+    std::vector<std::string> cmd;
+    for (auto it : mids) {
+        cmd.emplace_back(logicservice_.keyMidServer(it));
+    }
+    auto reply = redisclient_.MGet(cmd);
+    std::unordered_map<std::string, std::vector<std::string>> serverKeys;
+    for (size_t i = 0; i < reply.size(); i++) {
+        serverKeys[reply[i]].push_back(cmd[i]);
+    }
+
+    for (auto elem : serverKeys) {
+        PushMsg(elem.second, op, elem.first, msg);
     }
 }
 

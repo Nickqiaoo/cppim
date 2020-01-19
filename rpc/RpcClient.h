@@ -20,7 +20,7 @@ class RpcClient {
 
     void Echo(echo::EchoRequest* request){
         echo::EchoResponse* response = new echo::EchoResponse;
-        stub_.Echo(NULL, request, response, NewCallback(this,&RpcClient::echoDoneCallback, response));
+        stub_.Echo(NULL, request, response, google::protobuf::internal::NewCallback(this,&RpcClient::echoDoneCallback, response));
     }
 
     void echoDoneCallback(echo::EchoResponse* response){

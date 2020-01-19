@@ -14,4 +14,5 @@ rpc
 protocol
 protobuf
 pthread
+tcmalloc
 )
