@@ -6,12 +6,12 @@
 
 using namespace std::placeholders;
 
-LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip, int redisport,
-                         const std::string& brokers, const std::string& topic)
+LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip,
+                         int redisport, const std::string& brokers, const std::string& topic)
     : httpserver_(thrnum, httpip, httpport),
       rpcserver_(thrnum, rpcip, rpcport),
       kafkaproducer_(brokers, topic),
-      logicservice_(this,redisip,redisport) {}
+      logicservice_(this, redisip, redisport) {}
 LogicServer::~LogicServer() {}
 
 void LogicServer::Start() {
@@ -102,4 +102,25 @@ void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::st
     pushmsg.set_msg(msg);
 
     kafkaproducer_.Produce(keys[0], pushmsg.SerializeAsString());
+}
+
+int64_t LogicServer::getMilliSecond() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+std::string LogicServer::generateKey() {
+    static uint64_t lastTimestamp = getMilliSecond();
+    static uint16_t seqID = 0;
+    uint64_t timestamp = getMilliSecond();
+    if (lastTimestamp == timestamp) {
+        seqID = (seqID + 1) & 0xFFF;
+        if (seqID == 0) {
+            while (lastTimestamp == timestamp) timestamp = getMilliSecond();
+        };
+    } else {
+        seqID = 0;
+    }
+    lastTimestamp = timestamp;
+    uint64_t id = (timestamp & 0x3FFFFFFFFFF) << 22 | (serverid_ & 0x3FF) << 12 | seqID;
+    return std::to_string(id);
 }

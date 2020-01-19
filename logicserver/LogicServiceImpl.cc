@@ -1,3 +1,5 @@
+#include <chrono>
+#include "LogicServer.h"
 #include "LogicServiceImpl.h"
 #include "nlohmann/json.hpp"
 
@@ -13,7 +15,7 @@ void LogicServiceImpl::Connect(::google::protobuf::RpcController* controller, co
             response->set_mid(mid);
         }
         response->set_roomid(jsonbody["room_id"]);
-        std::string key = generateKey();
+        std::string key = logicserver_->generateKey();
         response->set_key(key);
         std::vector<int> accepts = jsonbody["accepts"];
         for (auto it : accepts) {
@@ -38,8 +40,4 @@ void LogicServiceImpl::addServerMap(const int32_t mid, const std::string& key, c
     commandvec.emplace_back(fmt::format("SET {} {}", keyKeyServer(key), server));
     commandvec.emplace_back(fmt::format("EXPIRE {} {}", keyKeyServer(key), 30 * 60));
     redisclient_.PipeLine(commandvec);
-}
-
-std::string LogicServiceImpl::generateKey(){
-
 }
