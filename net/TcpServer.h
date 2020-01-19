@@ -16,7 +16,7 @@ class TcpServer {
     void start();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
     void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
-    void setDisconnectCallback(const onDisconnectCallback& cb) { disconnectcallback_ = cb; }
+    void setUserDisconnectCallback(const onUserDisconnectCallback& cb) { disconnectcallback_ = cb; }
 
    private:
     template <typename T>
@@ -32,5 +32,5 @@ class TcpServer {
     std::mutex mutex_;
     onConnectionCallback connectioncallback_;
     onMessageCallback messagecallback_;
-    onDisconnectCallback disconnectcallback_;
+    onUserDisconnectCallback disconnectcallback_;
 };

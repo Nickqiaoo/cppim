@@ -1,7 +1,7 @@
 #include "RedisClient.h"
 #include <algorithm>
 #include <cstring>
-//#include "log.h"
+#include "log.h"
 
 bool RedisClient::Connect() {
     struct timeval tv = {2, 500000};  // 2.5secs
@@ -51,7 +51,7 @@ void RedisClient::PipeLine(const std::vector<std::string>& cmd) {
         }
         if (REDIS_REPLY_STATUS == reply->type && (strcasecmp(reply->str, "OK") == 0)) {
         } else {
-            //LOG_ERROR("redis pipeline execute error:{}", reply->str);
+            LOG_ERROR("redis pipeline execute error:{}", reply->str);
         }
         freeReplyObject(reply);
     }

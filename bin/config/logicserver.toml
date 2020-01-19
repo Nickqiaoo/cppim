@@ -13,6 +13,9 @@
 [rpcserver]
     addr = "127.0.0.1"
     port = 8083
+[redis]
+    addr = "127.0.0.1"
+    port = 6379
 [kafka]
     topic = "cppim"
     brokers = "localhost:9092"

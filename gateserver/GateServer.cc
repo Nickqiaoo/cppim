@@ -1,14 +1,16 @@
 #include "GateServer.h"
+#include "UserSession.h"
 
 GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport,
-                       const std::string& clientip, int clientport)
+                       const std::string& clientip, int clientport, const std::string& serverid)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
       rpcclient_(clientip, clientport, this, loop),
+      serverid_(serverid),
       gateservice_(this),
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)) {
     tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
-    tcpserver_.setDisconnectCallback(std::bind(&GateServer::HandleDisconnect,this,_1));
+    tcpserver_.setUserDisconnectCallback(std::bind(&GateServer::HandleDisconnect, this, _1));
 }
 GateServer::~GateServer() {}
 
@@ -50,16 +52,16 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     clientcodec_.send(session, 8, 0, std::string("success"));
 }
 
-void GateServer::HandleDisconnect(const SeesionPtr session){
+void GateServer::HandleDisconnect(const SessionPtr session) {
     auto usersession = static_pointer_cast<UserSession>(session);
-    auto it = channels_.find(usersession.getKey());
-    if(it!=channels_.end(){
+    auto it = channels_.find(usersession->getKey());
+    if (it != channels_.end()) {
         channels_.erase(it);
     }
-    auto it = rooms_.find(usersession.getRoom());
-    if(it!=rooms_.end()){
-        auto roomsession = it.second;
-        roomsessin.erase(session);
+    auto roomit = rooms_.find(usersession->getRoom());
+    if (roomit != rooms_.end()) {
+        auto roomsession = roomit->second;
+        roomsession.erase(session);
     }
 }
 

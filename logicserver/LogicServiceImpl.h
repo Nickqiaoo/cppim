@@ -19,7 +19,10 @@ class LogicServiceImpl : public logic::Logic {
                          ::google::protobuf::Closure* done) override;
 
    private:
-    void addServerMap(const int mid, const std::string& key, const std::string& server);
+    void addServerMap(const int32_t mid, const std::string& key, const std::string& server);
+    std::string generateKey();
+    std::string keyMidServer(int32_t mid);
+    std::string keyKeyServer(const std::string& key);
 
    private:
     LogicServer* logicserver_;

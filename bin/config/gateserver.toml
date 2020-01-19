@@ -7,6 +7,7 @@
     thread = 1
 [gateserver]
     netthr = 3
+    serverid = "1"
 [tcpserver]
     addr = "127.0.0.1"
     port = 8080
