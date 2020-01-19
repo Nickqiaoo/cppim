@@ -73,7 +73,7 @@ void JobServer::pushKeys(int32_t operation, const string& server, const google::
     proto->set_ver(1);
     proto->set_op(9);
     proto->set_body(msg);
-    rpcclient_.PushMsg(pushmsg, response, google::protobuf::internal::NewCallback(this, &JobServer::HandlePushMsg, response));
+    rpcclient_.PushMsg(pushmsg, response, NewCallback(this, &JobServer::HandlePushMsg, response));
 }
 void JobServer::pushRoom() {}
 void JobServer::HandlePushMsg(gate::PushMsgReply* response) { LOG_INFO("HandlePushMsg"); }

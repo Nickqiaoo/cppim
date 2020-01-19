@@ -22,7 +22,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             logic::ConnectReply* response = new logic::ConnectReply;
             request->set_server(serverid_);
             request->set_token(body);
-            rpcclient_.Connect(request, response, google::protobuf::internal::NewCallback(this, &GateServer::HandleConnect, response, session));
+            rpcclient_.Connect(request, response, NewCallback(this, &GateServer::HandleConnect, response, session));
         } break;
 
         default:
