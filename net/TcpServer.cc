@@ -2,6 +2,7 @@
 #include <string>
 #include "HttpSession.h"
 #include "RpcSession.h"
+#include "UserSession.h"
 #include "log.h"
 
 using namespace std::placeholders;
@@ -18,16 +19,20 @@ void TcpServer::setNewRpcSessionCalback() { acceptor_.setNewSessionCallback(std:
 void TcpServer::setNewHttpSessionCalback() { acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<HttpSession>, this)); }
 
 void TcpServer::DefaultDisconnectCallback(int id) {
+    SessionPtr session;
     {
         std::lock_guard<std::mutex> guard(mutex_);
         // LOG_INFO("connection disconnect, size:{}", connections_.size());
         auto it = connections_.find(id);
         if (it != connections_.end()) {
+            session = it->second;
             connections_.erase(id);
         }
     }
     if (disconnectcallback_) {
-        disconnectcallback_(id);
+        if(session){
+            disconnectcallback_(session);
+        }
     }
 }
 

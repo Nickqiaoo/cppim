@@ -8,14 +8,14 @@
 class LogicServer {
    public:
     LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip, int redisport,const std::string& brokers,
-                const std::string& topic);
+                const std::string& topic, int srverid);
     ~LogicServer();
     void Start();
     void PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgByRoomHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgToAllHandler(const HttpRequest& request, HttpResponsePtr response);
     std::string generateKey();
-    
+
    private:
     int64_t getMilliSecond();
     void PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg);

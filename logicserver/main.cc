@@ -31,7 +31,8 @@ int main() {
 #endif
     LogicServer server(*logicconfig->get_as<int>("netthr"), *httpconfig->get_as<std::string>("addr"), *httpconfig->get_as<int>("port"),
                        *rpcconfig->get_as<std::string>("addr"), *rpcconfig->get_as<int>("port"), *redisconfig->get_as<std::string>("addr"),
-                       *redisconfig->get_as<int>("port"), *kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"));
+                       *redisconfig->get_as<int>("port"), *kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"),
+                       *logicconfig->get_as<int>("serverid"));
     server.Start();
     while (1) {
         sleep(100);

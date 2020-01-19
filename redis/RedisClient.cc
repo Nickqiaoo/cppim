@@ -44,7 +44,7 @@ void RedisClient::PipeLine(const std::vector<std::string>& cmd) {
     for (auto it : cmd) {
         redisAppendCommand(context_, it.c_str());
     }
-    for (int i = 0; i < cmd.size(); i++) {
+    for (size_t i = 0; i < cmd.size(); i++) {
         redisGetReply(context_, reinterpret_cast<void**>(&reply));
         if (!reply) {
             continue;

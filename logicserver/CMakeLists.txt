@@ -6,8 +6,10 @@ include_directories(${CMAKE_SOURCE_DIR}/common/)
 include_directories(${CMAKE_SOURCE_DIR}/net/)
 include_directories(${CMAKE_SOURCE_DIR}/protocol/)
 include_directories(${CMAKE_SOURCE_DIR}/http/)
+include_directories(${CMAKE_SOURCE_DIR}/redis/)
 
 add_executable(logicserver ${LOGIC_SOURCES} ${LOGIC_HEADERS})
+
 target_link_libraries(logicserver
 net
 common
@@ -17,4 +19,6 @@ protobuf
 http
 pthread
 rdkafka++
+redis
+hiredis
 )

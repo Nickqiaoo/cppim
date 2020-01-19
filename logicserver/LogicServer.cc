@@ -7,8 +7,9 @@
 using namespace std::placeholders;
 
 LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip,
-                         int redisport, const std::string& brokers, const std::string& topic)
-    : httpserver_(thrnum, httpip, httpport),
+                         int redisport, const std::string& brokers, const std::string& topic, int serverid)
+    : serverid_(serverid),
+      httpserver_(thrnum, httpip, httpport),
       rpcserver_(thrnum, rpcip, rpcport),
       kafkaproducer_(brokers, topic),
       logicservice_(this, redisip, redisport) {}

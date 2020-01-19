@@ -1,6 +1,5 @@
 #include "JobServer.h"
 #include "log.h"
-#include "logic.pb.h"
 
 void JobServer::HandleKafkaMessage(RdKafka::Message* message, void* opaque) {
     // LOG_ERROR("message err: {}", message->err());
@@ -60,9 +59,12 @@ void JobServer::push(const logic::PushMsg& msg) {
             break;
         case logic::PushMsg::BROADCAST:
             break;
+        default:
+            break;
     }
 }
-void JobServer::pushKeys(int32_t operation, const string& server, const google::protobuf::RepeatedPtrField<std::string>& keys, const std::string& msg) {
+void JobServer::pushKeys(int32_t operation, const string& server, const google::protobuf::RepeatedPtrField<std::string>& keys,
+                         const std::string& msg) {
     auto pushmsg = new gate::PushMsgReq();
     gate::PushMsgReply* response = new gate::PushMsgReply;
     pushmsg->mutable_keys()->CopyFrom(keys);
@@ -73,7 +75,5 @@ void JobServer::pushKeys(int32_t operation, const string& server, const google::
     proto->set_body(msg);
     rpcclient_.PushMsg(pushmsg, response, NewCallback(this, &JobServer::HandlePushMsg, response));
 }
-void JobServer::pushRoom(){
-
-}
+void JobServer::pushRoom() {}
 void JobServer::HandlePushMsg(gate::PushMsgReply* response) { LOG_INFO("HandlePushMsg"); }
