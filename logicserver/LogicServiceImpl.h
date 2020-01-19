@@ -17,11 +17,11 @@ class LogicServiceImpl : public logic::Logic {
    public:
     virtual void Connect(::google::protobuf::RpcController* controller, const ::logic::ConnectReq* request, ::logic::ConnectReply* response,
                          ::google::protobuf::Closure* done) override;
+    std::string keyMidServer(int32_t mid);
+    std::string keyKeyServer(const std::string& key);
 
    private:
     void addServerMap(const int32_t mid, const std::string& key, const std::string& server);
-    std::string keyMidServer(int32_t mid);
-    std::string keyKeyServer(const std::string& key);
 
    private:
     LogicServer* logicserver_;

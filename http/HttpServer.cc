@@ -16,7 +16,7 @@ void HttpServer::start() {
     tcpserver_.start();
 }
 
-void HttpServer::doResponse(HttpResponsePtr response){
+void HttpServer::doResponse(HttpResponsePtr response) {
     auto buf = std::make_shared<Buffer>();
     response->appendToBuffer(buf);
     auto session = response->getSessionPtr();
@@ -42,11 +42,11 @@ void HttpServer::onMessage(const SessionPtr conn, Buffer* buf) {
 void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
     const string& connection = req.getHeader("Connection");
     bool close = connection == "close" || (req.getVersion() == HttpRequest::kHttp10 && connection != "Keep-Alive");
-    auto response = std::make_shared<HttpResponse>(conn,close);
+    auto response = std::make_shared<HttpResponse>(conn, close);
     auto it = handler_.find(req.path());
     if (it != handler_.end()) {
         it->second(req, response);
-        if(!response->delay()){
+        if (!response->delay()) {
             response->setStatusCode(HttpResponse::k200Ok);
             response->setStatusMessage("OK");
             doResponse(response);
@@ -60,4 +60,3 @@ void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
         conn->close();
     }
 }
-

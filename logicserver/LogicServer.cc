@@ -11,12 +11,14 @@ LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, co
     : serverid_(serverid),
       httpserver_(thrnum, httpip, httpport),
       rpcserver_(thrnum, rpcip, rpcport),
+      redisclient_(redisip,redisport),
       kafkaproducer_(brokers, topic),
       logicservice_(this, redisip, redisport) {}
 LogicServer::~LogicServer() {}
 
 void LogicServer::Start() {
     httpserver_.RegHandler("/push/keys", std::bind(&LogicServer::PushMsgByKeysHandler, this, _1, _2));
+    httpserver_.RegHandler("/push/mids", std::bind(&LogicServer::PushMsgByMidsHandler, this, _1, _2));
     httpserver_.RegHandler("/push/room", std::bind(&LogicServer::PushMsgByRoomHandler, this, _1, _2));
     httpserver_.RegHandler("/push/all", std::bind(&LogicServer::PushMsgToAllHandler, this, _1, _2));
     httpserver_.start();
@@ -71,7 +73,20 @@ void LogicServer::PushMsgToAllHandler(const HttpRequest& request, HttpResponsePt
     }
 }
 
-void LogicServer::PushMsgByKeys(const vector<std::string>& keys, int op, const string& msg) { PushMsg(keys, op, "gate1", msg); }
+void LogicServer::PushMsgByKeys(const std::vector<std::string>& keys, int op, const string& msg) { 
+    std::vector<std::string> cmd;
+    cmd.emplace_back("MGET");
+    for(auto it : keys){
+        cmd.emplace_back(logicservice_.keyKeyServer(it));
+    }
+    auto reply = redisclient_.Execute(cmd);
+    std::unordered_map<std::string,std::vector<std::string>> serverKeys;
+
+
+    for(auto it : serverKeys){
+        PushMsg(it.second, op, it.first, msg); 
+    }
+}
 
 void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg) {
     logic::PushMsg pushmsg;
@@ -96,7 +111,7 @@ void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::st
     logic::PushMsg pushmsg;
     pushmsg.set_type(logic::PushMsg::PUSH);
     pushmsg.set_operation(op);
-    pushmsg.set_server("gate1");
+    pushmsg.set_server(server);
     for (auto& it : keys) {
         pushmsg.add_keys(it);
     }

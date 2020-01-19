@@ -12,6 +12,7 @@ class LogicServer {
     ~LogicServer();
     void Start();
     void PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response);
+    void PushMsgByMidsHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgByRoomHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgToAllHandler(const HttpRequest& request, HttpResponsePtr response);
     std::string generateKey();
@@ -27,7 +28,8 @@ class LogicServer {
     int serverid_;
     HttpServer httpserver_;
     RpcServer rpcserver_;
-
+    
+    RedisClient redisclient_;
     KafkaProducer kafkaproducer_;
     LogicServiceImpl logicservice_;
 };

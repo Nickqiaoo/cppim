@@ -13,9 +13,7 @@ class HttpServer {
     HttpServer(int thrnum, const std::string& ip, int port);
     ~HttpServer();
     void start();
-    void RegHandler(const std::string& url, const HttpCallback& cb){
-      handler_.insert({url,cb});
-    }
+    void RegHandler(const std::string& url, const HttpCallback& cb) { handler_.insert({url, cb}); }
     void doResponse(HttpResponsePtr response);
 
    private:
