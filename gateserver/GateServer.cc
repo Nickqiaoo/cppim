@@ -1,8 +1,8 @@
 #include "GateServer.h"
 #include "UserSession.h"
 
-GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
-                       int clientport, const std::string& serverid)
+GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport,
+                       const std::string& clientip, int clientport, const std::string& serverid)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
       rpcclient_(clientip, clientport, this, loop),
@@ -15,6 +15,7 @@ GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int t
 GateServer::~GateServer() {}
 
 void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) {
+    auto usersession = static_pointer_cast<UserSession>(session);
     switch (op) {
         case 7: {
             LOG_INFO("client onmessage token: {}", body);
@@ -23,6 +24,16 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             request->set_server(serverid_);
             request->set_token(body);
             rpcclient_.Connect(request, response, NewCallback(this, &GateServer::HandleConnect, response, session));
+        } break;
+
+        case 2: {
+            LOG_INFO("client heartbeat");
+            logic::HeartbeatReq* request = new logic::HeartbeatReq;
+            logic::HeartbeatReply* response = new logic::HeartbeatReply;
+            request->set_server(serverid_);
+            request->set_mid(usersession->getMid());
+            request->set_key(usersession->getKey());
+            rpcclient_.HeartBeat(request, response, NewCallback(this, &GateServer::HandleHeartbeat, response, session));
         } break;
 
         default:

@@ -25,6 +25,10 @@ class LogicRpcClient {
 
     void Connect(logic::ConnectReq* request, logic::ConnectReply* response, google::protobuf::Closure* done);
 
+    void HeartBeat(logic::HeartbeatReq* request, logic::HeartbeatReply* response, google::protobuf::Closure* done);
+
+    void Disconnect(logic::DisconnectReq* request, logic::DisconnectReply* response, google::protobuf::Closure* done);
+
     bool Connected() { return isconnected_; }
 
    private:

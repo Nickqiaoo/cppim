@@ -2,38 +2,34 @@
 #include <memory>
 #include <mutex>
 
-#include "asio/steady_timer.hpp"
 #include "Buffer.h"
+#include "asio/steady_timer.hpp"
 #include "net_define.h"
 
 class Session : public std::enable_shared_from_this<Session> {
-  public:
+   public:
     explicit Session(LoopPtr loop, uint64_t id = 0);
     ~Session();
-    Session(const Session &) = delete;
-    Session operator=(const Session &) = delete;
+    Session(const Session&) = delete;
+    Session operator=(const Session&) = delete;
 
-  public:
-    asio::ip::tcp::socket &Socket() { return socket_; }
+   public:
+    asio::ip::tcp::socket& Socket() { return socket_; }
     void start();
-    void setMessageCallback(const onMessageCallback& cb){
-        messagecallback_ = cb;
-    }
-    void setConnectionCallback(const onConnectionCallback& cb){
-      connectioncallback_ = cb;
-    }
-    void setDisconnectCallback(const onDisconnectCallback& cb){
-      disconnectcallback_ = cb;
-    }
+    void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
+    void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
+    void setDisconnectCallback(const onDisconnectCallback& cb) { disconnectcallback_ = cb; }
 
     void send(BufferPtr buffer);
     void connect(const string& ip, int port);
     void close();
-  private:
+
+   private:
     void read();
     void write();
     void reconnect();
-  private:
+
+   private:
     uint64_t id_;
     std::mutex mutex_;
     LoopPtr loop_;

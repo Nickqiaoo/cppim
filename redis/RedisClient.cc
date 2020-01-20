@@ -86,6 +86,39 @@ std::vector<std::string> RedisClient::MGet(const std::vector<std::string>& cmd) 
     return command;
 }
 
+std::unordered_map<std::string, std::string> RedisClient::HGetAll(const std::string& cmd) {
+    std::vector<std::string> command;
+    std::unordered_map<std::string, std::string> hmap;
+    std::string key, value;
+    command.emplace_back("HGETALL");
+    command.emplace_back(std::move(cmd));
+    auto reply = Execute(command);
+    if (reply) {
+        if (reply->type == REDIS_REPLY_NIL) {
+        } else if (reply->type == REDIS_REPLY_ARRAY) {
+            redisReply* rep;
+            for (size_t i = 0; i < reply->elements; i += 2) {
+                rep = reply->element[i];
+                if (rep->type == REDIS_REPLY_STRING) {
+                    key = std::string(rep->str, rep->len);
+                }
+                rep = reply->element[i + 1];
+                if (rep->type == REDIS_REPLY_STRING) {
+                    value = std::string(rep->str, rep->len);
+                } else if (rep->type == REDIS_REPLY_INTEGER) {
+                    value = std::to_string(rep->integer);
+                }
+                hmap.insert({key, value});
+            }
+        } else {
+            LOG_ERROR("redis execute error:{}", reply->str);
+        }
+    } else {
+        LOG_ERROR("redis connect error:{}");
+    }
+    return hmap;
+}
+
 bool RedisClient::Auth() {
     if (passwd_.empty()) {
         return true;

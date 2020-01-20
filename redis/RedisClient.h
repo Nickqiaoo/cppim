@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 class RedisClient {
    public:
@@ -13,6 +14,7 @@ class RedisClient {
     std::shared_ptr<redisReply> Execute(const std::vector<std::string>& cmd);
     void PipeLine(const std::vector<std::string>& cmd);
     std::vector<std::string> MGet(const std::vector<std::string>& cmd);
+    std::unordered_map<std::string, std::string> HGetAll(const std::string& cmd);
     
    private:
     bool Auth();
