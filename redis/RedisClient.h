@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 
 class RedisClient {
@@ -24,6 +25,7 @@ class RedisClient {
     bool Active();
 
    private:
+    std::mutex mutex_;
     redisContext* context_;
     std::string ip_;
     int port_{0};

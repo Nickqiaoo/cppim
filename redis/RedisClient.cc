@@ -18,14 +18,17 @@ bool RedisClient::Connect() {
 }
 
 std::shared_ptr<redisReply> RedisClient::Execute(const std::string& cmd) {
+    mutex_.lock();
     if (!Active()) {
         return nullptr;
     }
     redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(context_, cmd.c_str()));
+    mutex_.unlock();
     return std::shared_ptr<redisReply>(reply, [](redisReply* p) { freeReplyObject(p); });
 }
 
 std::shared_ptr<redisReply> RedisClient::Execute(const std::vector<std::string>& cmd) {
+    mutex_.lock();
     std::vector<const char*> argv;
     std::transform(cmd.begin(), cmd.end(), std::back_inserter(argv), [](const std::string& s) { return s.c_str(); });
     // Construct a size_t* of string lengths from the vector
@@ -36,10 +39,12 @@ std::shared_ptr<redisReply> RedisClient::Execute(const std::vector<std::string>&
         return nullptr;
     }
     redisReply* reply = reinterpret_cast<redisReply*>(redisCommandArgv(context_, argv.size(), &argv[0], &argvlen[0]));
+    mutex_.unlock();
     return std::shared_ptr<redisReply>(reply, [](redisReply* p) { freeReplyObject(p); });
 }
 
 void RedisClient::PipeLine(const std::vector<std::string>& cmd) {
+    mutex_.lock();
     redisReply* reply;
     for (auto it : cmd) {
         redisAppendCommand(context_, it.c_str());
@@ -55,6 +60,7 @@ void RedisClient::PipeLine(const std::vector<std::string>& cmd) {
         }
         freeReplyObject(reply);
     }
+    mutex_.unlock();
 }
 
 std::vector<std::string> RedisClient::MGet(const std::vector<std::string>& cmd) {

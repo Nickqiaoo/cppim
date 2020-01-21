@@ -19,6 +19,8 @@ class LogicServiceImpl : public logic::Logic {
                          ::google::protobuf::Closure* done) override;
     virtual void Heartbeat(::google::protobuf::RpcController* controller, const ::logic::HeartbeatReq* request, ::logic::HeartbeatReply* response,
                            ::google::protobuf::Closure* done) override;
+    virtual void Disconnect(::google::protobuf::RpcController* controller, const ::logic::DisconnectReq* request, ::logic::DisconnectReply* response,
+                           ::google::protobuf::Closure* done) override;
 
     std::string keyMidServer(int32_t mid);
     std::string keyKeyServer(const std::string& key);

@@ -16,6 +16,7 @@ GateServer::~GateServer() {}
 
 void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body) {
     auto usersession = static_pointer_cast<UserSession>(session);
+    // FIXME:handle client_ null
     switch (op) {
         case 7: {
             LOG_INFO("client onmessage token: {}", body);
@@ -63,16 +64,29 @@ void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr s
     clientcodec_.send(session, 8, 0, std::string("success"));
 }
 
+void GateServer::HandleHeartbeat(logic::HeartbeatReply* response, const SessionPtr session) { LOG_INFO("handle heartbeat reply"); }
+
 void GateServer::HandleDisconnect(const SessionPtr session) {
     auto usersession = static_pointer_cast<UserSession>(session);
+    LOG_INFO("handle disconnect mid:{} key:{}",usersession->getMid(), usersession->getKey());
+    
+    logic::DisconnectReq* request = new logic::DisconnectReq;
+    logic::DisconnectReply* response = new logic::DisconnectReply;
+    request->set_server(serverid_);
+    request->set_mid(usersession->getMid());
+    request->set_key(usersession->getKey());
+    rpcclient_.Disconnect(request, response, nullptr);
+
     auto it = channels_.find(usersession->getKey());
     if (it != channels_.end()) {
         channels_.erase(it);
+        LOG_INFO("erase channel session key:{} channel size:{}", usersession->getKey(), channels_.size());
     }
     auto roomit = rooms_.find(usersession->getRoom());
     if (roomit != rooms_.end()) {
         auto roomsession = roomit->second;
         roomsession.erase(session);
+        LOG_INFO("erase room session key:{} room size:{}", usersession->getKey(), roomsession.size());
     }
 }
 

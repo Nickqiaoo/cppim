@@ -31,8 +31,22 @@ void LogicServiceImpl::Connect(::google::protobuf::RpcController* controller, co
 
 void LogicServiceImpl::Heartbeat(::google::protobuf::RpcController* controller, const ::logic::HeartbeatReq* request,
                                  ::logic::HeartbeatReply* response, ::google::protobuf::Closure* done) {
-    LOG_INFO("client heartbeat server:{} mid:{} key:{}", request->server(),request->mid(), request->key());
-    
+    LOG_INFO("client heartbeat server:{} mid:{} key:{}", request->server(), request->mid(), request->key());
+    std::vector<std::string> commandvec;
+    commandvec.emplace_back(fmt::format("EXPIRE {} {}", keyMidServer(request->mid()), 30 * 60));
+    commandvec.emplace_back(fmt::format("EXPIRE {} {}", keyKeyServer(request->key()), 30 * 60));
+    redisclient_.PipeLine(commandvec);
+    done->Run();
+}
+
+void LogicServiceImpl::Disconnect(::google::protobuf::RpcController* controller, const ::logic::DisconnectReq* request,
+                                  ::logic::DisconnectReply* response, ::google::protobuf::Closure* done) {
+    LOG_INFO("client heartbeat server:{} mid:{} key:{}", request->server(), request->mid(), request->key());
+     std::vector<std::string> commandvec;
+    commandvec.emplace_back(fmt::format("HDEL {} {}", keyMidServer(request->mid()), request->key()));
+    commandvec.emplace_back(fmt::format("DEL {}", keyKeyServer(request->key())));
+    redisclient_.PipeLine(commandvec);
+    done->Run();
 }
 
 std::string LogicServiceImpl::keyMidServer(int32_t mid) { return fmt::format("mid_{}", mid); }
