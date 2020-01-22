@@ -55,9 +55,10 @@ void JobServer::push(const logic::PushMsg& msg) {
             pushKeys(msg.operation(), msg.server(), msg.keys(), msg.msg());
             break;
         case logic::PushMsg::ROOM:
-            pushRoom();
+            broadcastRoom(msg.room(), msg.msg());
             break;
         case logic::PushMsg::BROADCAST:
+            broadcast(msg.operation(), msg.msg(), msg.speed());
             break;
         default:
             break;
@@ -75,5 +76,28 @@ void JobServer::pushKeys(int32_t operation, const string& server, const google::
     proto->set_body(msg);
     rpcclient_.PushMsg(pushmsg, response, NewCallback(this, &JobServer::HandlePushMsg, response));
 }
-void JobServer::pushRoom() {}
+
+void JobServer::broadcastRoom(const std::string& room, const std::string& msg) {
+    auto pushmsg = new gate::BroadcastRoomReq();
+    auto response = new gate::BroadcastRoomReply();
+    pushmsg->set_roomid(room);
+    auto proto = pushmsg->mutable_proto();
+    proto->set_ver(1);
+    proto->set_op(9);
+    proto->set_body(msg);
+    rpcclient_.BroadcastRoom(pushmsg, response, nullptr);
+}
+
+void JobServer::broadcast(int32_t operation, const std::string& msg, int32_t speed) {
+    auto pushmsg = new gate::BroadcastReq();
+    auto response = new gate::BroadcastReply();
+    pushmsg->set_speed(speed);
+    pushmsg->set_protoop(operation);
+    auto proto = pushmsg->mutable_proto();
+    proto->set_ver(1);
+    proto->set_op(9);
+    proto->set_body(msg);
+    rpcclient_.Broadcast(pushmsg, response, nullptr);
+}
+
 void JobServer::HandlePushMsg(gate::PushMsgReply* response) { LOG_INFO("HandlePushMsg"); }

@@ -24,6 +24,8 @@ class GateRpcClient {
     void connect() { session_->connect(ip_, port_); }
 
     void PushMsg(gate::PushMsgReq* request, gate::PushMsgReply* response, ::google::protobuf::Closure* done);
+    void BroadcastRoom(gate::BroadcastRoomReq* request, gate::BroadcastRoomReply* response, ::google::protobuf::Closure* done);
+    void Broadcast(gate::BroadcastReq* request, gate::BroadcastReply* response, ::google::protobuf::Closure* done);
 
    private:
     void onConnection(const SessionPtr& conn) {

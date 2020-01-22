@@ -143,6 +143,7 @@ void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg) {
 void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::string& msg) {
     logic::PushMsg pushmsg;
     pushmsg.set_type(logic::PushMsg::ROOM);
+    pushmsg.set_room(room);
     pushmsg.set_operation(op);
     pushmsg.set_msg(msg);
 
