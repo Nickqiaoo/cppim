@@ -26,6 +26,10 @@ void RpcServer::start()
   server_.start();
 }
 
+void RpcServer::stop(){
+  server_.stop();
+}
+
 void RpcServer::onConnection(const SessionPtr& conn)
 {
     RpcChannelPtr channel(new RpcChannel(conn));

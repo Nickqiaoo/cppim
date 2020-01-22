@@ -18,3 +18,7 @@ void KafkaConsumer::Start() {
         messagecb_(msg, NULL);
         delete msg;
 }
+
+void KafkaConsumer::Stop(){
+    consumer_->close();
+}

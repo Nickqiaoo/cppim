@@ -20,6 +20,7 @@ class GateServer {
     void SendToClient(const std::string& key, const gate::Proto& msg);
     void SendToRoom(const std::string& roomid, const std::string& body);
     void BroadCast(const std::string& body);
+    void Stop();
 
    private:
     void onClientMessageCallback(const SessionPtr& session, int op, int id, const std::string& body);

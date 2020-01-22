@@ -23,6 +23,7 @@ class RpcServer
 
   void registerService(::google::protobuf::Service*);
   void start();
+  void stop();
 
  private:
   void onConnection(const SessionPtr& conn);

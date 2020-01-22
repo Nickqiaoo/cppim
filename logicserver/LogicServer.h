@@ -11,6 +11,7 @@ class LogicServer {
                 const std::string& topic, int srverid);
     ~LogicServer();
     void Start();
+    void Stop();
     void PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgByMidsHandler(const HttpRequest& request, HttpResponsePtr response);
     void PushMsgByRoomHandler(const HttpRequest& request, HttpResponsePtr response);

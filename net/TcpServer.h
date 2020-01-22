@@ -14,6 +14,7 @@ class TcpServer {
     void setNewHttpSessionCalback();
     void setNewUserSessionCallback();
     void start();
+    void stop();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
     void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
     void setUserDisconnectCallback(const onUserDisconnectCallback& cb) { disconnectcallback_ = cb; }

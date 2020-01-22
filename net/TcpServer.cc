@@ -54,3 +54,8 @@ void TcpServer::start() {
     acceptor_.start();
     loopmgr_.start();
 }
+
+void TcpServer::stop(){
+    acceptor_.close();
+    loopmgr_.stop();
+}

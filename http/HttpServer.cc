@@ -16,6 +16,10 @@ void HttpServer::start() {
     tcpserver_.start();
 }
 
+void HttpServer::stop(){
+    tcpserver_.stop();
+}
+
 void HttpServer::doResponse(HttpResponsePtr response) {
     auto buf = std::make_shared<Buffer>();
     response->appendToBuffer(buf);

@@ -51,6 +51,11 @@ void GateServer::Start() {
     rpcclient_.connect();
 }
 
+void GateServer::Stop(){
+    tcpserver_.stop();
+    rpcserver_.stop();
+}
+
 void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr session) {
     int64_t mid = response->mid();
     std::string key = response->key();

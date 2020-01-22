@@ -75,6 +75,7 @@ class KafkaConsumer{
     }
 
     void Start();
+    void Stop();
     void setMseeageCallback(const KafkaMessageCallback& cb){
         messagecb_ = cb;
     }

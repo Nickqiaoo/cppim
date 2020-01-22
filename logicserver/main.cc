@@ -7,11 +7,10 @@
 #include <gperftools/profiler.h>
 #endif
 
+static bool terminate = false; 
+
 static void onsignal(int s) {
-#ifdef GPERFTOOLS
-    ProfilerStop();
-#endif
-    exit(1);
+    ::terminate = true;
 }
 
 int main() {
@@ -26,18 +25,28 @@ int main() {
     common::Log::Instance().Init(*logconfig->get_as<std::string>("name"), *logconfig->get_as<std::string>("path"),
                                  *logconfig->get_as<std::string>("level"), *logconfig->get_as<std::string>("flushlevel"),
                                  *logconfig->get_as<bool>("stdout"), *logconfig->get_as<int>("thread"));
-#ifdef GPERFTOOLS
     signal(SIGINT, onsignal);
-    ProfilerStart("logic.prof");
-#endif
+
+    #ifdef GPERFTOOLS
+        ProfilerStart("logic.prof");
+    #endif
+    
     LogicServer server(*logicconfig->get_as<int>("netthr"), *httpconfig->get_as<std::string>("addr"), *httpconfig->get_as<int>("port"),
                        *rpcconfig->get_as<std::string>("addr"), *rpcconfig->get_as<int>("port"), *redisconfig->get_as<std::string>("addr"),
                        *redisconfig->get_as<int>("port"), *kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"),
                        *logicconfig->get_as<int>("serverid"));
     server.Start();
-    while (1) {
+
+    while (!::terminate) {
         sleep(30);
         MallocExtension::instance()->ReleaseFreeMemory();
     }
+
+    server.Stop();
+
+    #ifdef GPERFTOOLS
+        ProfilerStop();
+    #endif
+
     return 0;
 }

@@ -12,6 +12,7 @@ class JobServer {
     ~JobServer(){};
 
     void Start() { rpcclient_.connect(); }
+    void Stop() {kafkaconsumer_.Stop();}
 
     void StartConsum() { kafkaconsumer_.Start(); }
 

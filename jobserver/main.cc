@@ -7,11 +7,10 @@
 #include <gperftools/profiler.h>
 #endif
 
+static bool terminate = false; 
+
 static void onsignal(int s){
-#ifdef GPERFTOOLS
-    ProfilerStop();
-#endif
-    exit(1);
+    ::terminate = true;
 }
 
 int main() {
@@ -23,18 +22,29 @@ int main() {
     common::Log::Instance().Init(*logconfig->get_as<std::string>("name"), *logconfig->get_as<std::string>("path"),
                                  *logconfig->get_as<std::string>("level"), *logconfig->get_as<std::string>("flushlevel"),
                                  *logconfig->get_as<bool>("stdout"), *logconfig->get_as<int>("thread"));
-    #ifdef GPERFTOOLS
     signal(SIGINT,onsignal);
+
+    #ifdef GPERFTOOLS
     ProfilerStart("job.prof");
     #endif
+
     auto loop = std::make_shared<Loop>();
     JobServer server(loop, *kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"),
                      *clientconfig->get_as<std::string>("addr"), *clientconfig->get_as<int>("port"));
     server.Start();
     loop->start();
-    while(1){
+
+    while (!::terminate) {
         MallocExtension::instance()->ReleaseFreeMemory();
         server.StartConsum();
     }
+
+    #ifdef GPERFTOOLS
+        ProfilerStop();
+    #endif
+
+    loop->stop();
+    server.Stop();
+    
     return 0;
 }

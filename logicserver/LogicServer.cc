@@ -30,6 +30,11 @@ void LogicServer::Start() {
     rpcserver_.start();
 }
 
+void LogicServer::Stop(){
+    httpserver_.stop();
+    rpcserver_.stop();
+}
+
 void LogicServer::PushMsgByKeysHandler(const HttpRequest& request, HttpResponsePtr response) {
     std::vector<std::string> keys;
     int operation = stoi(request.getQuery("operation"));

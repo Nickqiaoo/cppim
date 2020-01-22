@@ -7,11 +7,10 @@
 #include <gperftools/profiler.h>
 #endif
 
+static bool terminate = false; 
+
 static void onsignal(int s) {
-#ifdef GPERFTOOLS
-    ProfilerStop();
-#endif
-    exit(1);
+    ::terminate = true;
 }
 
 int main() {
@@ -24,22 +23,30 @@ int main() {
 
     common::Log::Instance().Init(*logconfig->get_as<std::string>("name"), *logconfig->get_as<std::string>("path"), *logconfig->get_as<std::string>("level"),
                                  *logconfig->get_as<std::string>("flushlevel"), *logconfig->get_as<bool>("stdout"), *logconfig->get_as<int>("thread"));
-#ifdef GPERFTOOLS
     signal(SIGINT, onsignal);
-    ProfilerStart("gate.prof");
-#endif
+
+    #ifdef GPERFTOOLS
+        ProfilerStart("gate.prof");
+    #endif
+
     auto loop = std::make_shared<Loop>();
     GateServer server(loop, *gateconfig->get_as<int>("netthr"), *tcpconfig->get_as<std::string>("addr"), *tcpconfig->get_as<int>("port"),
                       *rpcconfig->get_as<std::string>("addr"), *rpcconfig->get_as<int>("port"), *clientconfig->get_as<std::string>("addr"),
                       *clientconfig->get_as<int>("port"), *gateconfig->get_as<std::string>("serverid"));
     server.Start();
     loop->start();
-    while (1) {
+    
+    while (!::terminate) {
         sleep(30);
         MallocExtension::instance()->ReleaseFreeMemory();
     }
-#ifdef GPERFTOOLS
-    ProfilerStop();
-#endif
+
+    loop->stop();
+    server.Stop();
+
+    #ifdef GPERFTOOLS
+        ProfilerStop();
+    #endif
+
     return 0;
 }
