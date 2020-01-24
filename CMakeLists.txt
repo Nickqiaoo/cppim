@@ -20,8 +20,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
 #ASAN
 if(OPEN_MEMORY_CHECK)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libasan")
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libasan")
   message(STATUS "Open memory check")
 endif(OPEN_MEMORY_CHECK)
 
@@ -83,6 +82,7 @@ link_directories(/usr/local/lib/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/cpptoml/include/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/)
+include_directories(/usr/local/include/)
 
 #add_subdirectory(opt)
 add_subdirectory(client)
