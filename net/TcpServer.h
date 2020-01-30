@@ -10,14 +10,13 @@ class TcpServer {
     TcpServer(int thrnum, const std::string& ip, int port);
     ~TcpServer();
 
-    void setNewRpcSessionCalback();
-    void setNewHttpSessionCalback();
-    void setNewUserSessionCallback();
+    template<typename T>
+    void setNewSessionCallback();
     void start();
     void stop();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
     void setConnectionCallback(const onConnectionCallback& cb) { connectioncallback_ = cb; }
-    void setUserDisconnectCallback(const onUserDisconnectCallback& cb) { disconnectcallback_ = cb; }
+    void setServerDisconnectCallback(const onServerDisconnectCallback& cb) { disconnectcallback_ = cb; }
 
    private:
     template <typename T>
@@ -33,5 +32,5 @@ class TcpServer {
     std::mutex mutex_;
     onConnectionCallback connectioncallback_;
     onMessageCallback messagecallback_;
-    onUserDisconnectCallback disconnectcallback_;
+    onServerDisconnectCallback disconnectcallback_;
 };

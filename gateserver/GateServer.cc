@@ -10,7 +10,7 @@ GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int t
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)),
       serverid_(serverid) {
     tcpserver_.setMessageCallback(std::bind(&ClientCodec::onMessage, &clientcodec_, _1, _2));
-    tcpserver_.setUserDisconnectCallback(std::bind(&GateServer::HandleDisconnect, this, _1));
+    tcpserver_.setServerDisconnectCallback(std::bind(&GateServer::HandleDisconnect, this, _1));
 }
 GateServer::~GateServer() {}
 
@@ -44,7 +44,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
 }
 
 void GateServer::Start() {
-    tcpserver_.setNewUserSessionCallback();
+    tcpserver_.setNewSessionCallback<UserSession>();
     tcpserver_.start();
     rpcserver_.registerService(&gateservice_);
     rpcserver_.start();

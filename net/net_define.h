@@ -23,5 +23,5 @@ typedef std::function<SessionPtr()> NewSessionCallback;
 typedef std::function<void(const SessionPtr)> onConnectionCallback;
 typedef std::function<void(void)> Callback;
 typedef std::function<void(const SessionPtr, Buffer*)> onMessageCallback;
-typedef std::function<void(const SessionPtr)> onUserDisconnectCallback;
+typedef std::function<void(const SessionPtr)> onServerDisconnectCallback;
 typedef std::function<void(int)> onDisconnectCallback;

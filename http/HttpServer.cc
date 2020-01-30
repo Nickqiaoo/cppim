@@ -12,7 +12,7 @@ HttpServer::HttpServer(int thrnum, const std::string& ip, int port) : tcpserver_
 HttpServer::~HttpServer() {}
 
 void HttpServer::start() {
-    tcpserver_.setNewHttpSessionCalback();
+    tcpserver_.setNewSessionCalback<HttpSession>();
     tcpserver_.start();
 }
 
