@@ -22,13 +22,13 @@ void Acceptor::listen() {
 void Acceptor::accept() {
     auto session = newSessionCallback_();
     acceptor_.async_accept(session->Socket(), [session, this](const asio::error_code &err) {
-        if(!acceptor_.is_open()){
-            return ;
-        }
         if (!err) {
             session->start();
         } else {
             session->close();
+        }
+        if(!acceptor_.is_open()){        
+            return ;
         }
         accept();
     });
