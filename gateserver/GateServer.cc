@@ -1,8 +1,8 @@
 #include "GateServer.h"
 #include "UserSession.h"
 
-GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport,
-                       const std::string& clientip, int clientport, const std::string& serverid)
+GateServer::GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
+                       int clientport, const std::string& serverid)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
       rpcclient_(clientip, clientport, this, loop),
@@ -51,7 +51,7 @@ void GateServer::Start() {
     rpcclient_.connect();
 }
 
-void GateServer::Stop(){
+void GateServer::Stop() {
     tcpserver_.stop();
     rpcserver_.stop();
 }
@@ -73,8 +73,8 @@ void GateServer::HandleHeartbeat(logic::HeartbeatReply* response, const SessionP
 
 void GateServer::HandleDisconnect(const SessionPtr session) {
     auto usersession = static_pointer_cast<UserSession>(session);
-    LOG_INFO("handle disconnect mid:{} key:{}",usersession->getMid(), usersession->getKey());
-    
+    LOG_INFO("handle disconnect mid:{} key:{}", usersession->getMid(), usersession->getKey());
+
     logic::DisconnectReq* request = new logic::DisconnectReq;
     logic::DisconnectReply* response = new logic::DisconnectReply;
     request->set_server(serverid_);
@@ -100,5 +100,18 @@ void GateServer::SendToClient(const std::string& key, const gate::Proto& msg) {
     if (it != channels_.end()) {
         LOG_INFO("send message to key:{}", key);
         clientcodec_.send(it->second, msg.op(), msg.seq(), msg.body());
+    }
+}
+void GateServer::SendToRoom(const std::string& roomid, const gate::Proto& msg) {
+    auto it = rooms_.find(roomid);
+    if (it != rooms_.end()) {
+        for (auto session : it->second) {
+            clientcodec_.send(session, msg.op(), msg.seq(), msg.body());
+        }
+    }
+}
+void GateServer::BroadCast(const gate::Proto& msg) {
+    for (auto session : channels_) {
+        clientcodec_.send(session.second, msg.op(), msg.seq(), msg.body());
     }
 }

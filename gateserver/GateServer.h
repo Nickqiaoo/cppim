@@ -17,9 +17,10 @@ class GateServer {
     void HandleConnect(logic::ConnectReply* response, const SessionPtr session);
     void HandleHeartbeat(logic::HeartbeatReply* response, const SessionPtr session);
     void HandleDisconnect(const SessionPtr session);
+
     void SendToClient(const std::string& key, const gate::Proto& msg);
-    void SendToRoom(const std::string& roomid, const std::string& body);
-    void BroadCast(const std::string& body);
+    void SendToRoom(const std::string& roomid, const gate::Proto& msg);
+    void BroadCast(const gate::Proto& msg);
     void Stop();
 
    private:
