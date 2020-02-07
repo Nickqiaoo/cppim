@@ -10,8 +10,10 @@ class TcpServer {
     TcpServer(int thrnum, const std::string& ip, int port);
     ~TcpServer();
 
-    template<typename T>
-    void setNewSessionCallback();
+    template <typename T>
+    void setNewSessionCallback() {
+        acceptor_.setNewSessionCallback(std::bind(&TcpServer::newSession<T>, this));
+    }
     void start();
     void stop();
     void setMessageCallback(const onMessageCallback& cb) { messagecallback_ = cb; }
@@ -20,8 +22,19 @@ class TcpServer {
 
    private:
     template <typename T>
-    SessionPtr newSession();
-    
+    SessionPtr newSession() {
+        auto loop = loopmgr_.findNextLoop();
+        auto session = std::make_shared<T>(loop, sessionid_++);
+        session->setMessageCallback(messagecallback_);
+        session->setConnectionCallback(connectioncallback_);
+        session->setDisconnectCallback(std::bind(&TcpServer::DefaultDisconnectCallback, this, std::placeholders::_1));
+        {
+            std::lock_guard<std::mutex> guard(mutex_);
+            connections_.insert({sessionid_, session});
+        }
+        return session;
+    }
+
     void DefaultDisconnectCallback(int id);
 
    private:
