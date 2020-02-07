@@ -38,7 +38,7 @@ int main() {
     server.Start();
 
     while (!::terminate) {
-        sleep(30);
+        sleep(5);
         MallocExtension::instance()->ReleaseFreeMemory();
     }
 

@@ -37,7 +37,7 @@ int main() {
     loop->start();
     
     while (!::terminate) {
-        sleep(30);
+        sleep(5);
         MallocExtension::instance()->ReleaseFreeMemory();
     }
 
