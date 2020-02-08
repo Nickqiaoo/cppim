@@ -4,7 +4,7 @@
 
 class UserSession : public Session {
    public:
-    explicit UserSession(LoopPtr loop, int64_t id) : Session(loop, id) {}
+    explicit UserSession(Loop* loop, int64_t id) : Session(loop, id) {}
     ~UserSession() {}
 
     std::string getKey() const { return key; }

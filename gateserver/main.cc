@@ -28,8 +28,8 @@ int main() {
     #ifdef GPERFTOOLS
         ProfilerStart("gate.prof");
     #endif
-
-    auto loop = std::make_shared<Loop>();
+{
+    auto loop = new Loop("client");
     GateServer server(loop, *gateconfig->get_as<int>("netthr"), *tcpconfig->get_as<std::string>("addr"), *tcpconfig->get_as<int>("port"),
                       *rpcconfig->get_as<std::string>("addr"), *rpcconfig->get_as<int>("port"), *clientconfig->get_as<std::string>("addr"),
                       *clientconfig->get_as<int>("port"), *gateconfig->get_as<std::string>("serverid"));
@@ -38,11 +38,13 @@ int main() {
     
     while (!::terminate) {
         sleep(5);
-        MallocExtension::instance()->ReleaseFreeMemory();
+        //MallocExtension::instance()->ReleaseFreeMemory();
     }
 
     loop->stop();
     server.Stop();
+    delete loop;
+}
 
     #ifdef GPERFTOOLS
         ProfilerStop();

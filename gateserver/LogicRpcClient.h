@@ -14,11 +14,14 @@ using namespace std::placeholders;
 
 class LogicRpcClient {
    public:
-    LogicRpcClient(const std::string& ip, int port, GateServer* server, LoopPtr loop)
-        : ip_(ip), port_(port), gateserver_(server), session_(std::make_shared<Session>(loop, 1)), channel_(new RpcChannel), stub_(channel_.get()) {
+    LogicRpcClient(const std::string& ip, int port, GateServer* server, Loop* loop)
+        : ip_(ip), port_(port), gateserver_(server), session_(std::make_shared<Session>(loop, 0)), channel_(new RpcChannel), stub_(channel_.get()) {
         session_->setConnectionCallback(std::bind(&LogicRpcClient::onConnection, this, _1));
         session_->setMessageCallback(std::bind(&RpcChannel::onMessage, channel_.get(), _1, _2));
         // client_.enableRetry();
+    }
+    ~LogicRpcClient() {
+        LOG_INFO("rpcclient destroy");
     }
 
     void connect() { session_->connect(ip_, port_); }

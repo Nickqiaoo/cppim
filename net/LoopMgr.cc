@@ -3,11 +3,15 @@
 
 LoopMgr::LoopMgr(size_t thrnum) {
   for (size_t i = 0; i < thrnum; i++) {
-    loops_.emplace_back(std::make_shared<Loop>());
+    loops_.emplace_back(new Loop());
   }
 }
 
-LoopMgr::~LoopMgr() {}
+LoopMgr::~LoopMgr() {
+  for(auto loop : loops_){
+    delete loop;
+  }
+}
 
 void LoopMgr::start(){
   for(auto loop : loops_){
@@ -21,7 +25,7 @@ void LoopMgr::stop(){
   }
 }
 
-LoopPtr LoopMgr::findNextLoop() {
+Loop* LoopMgr::findNextLoop() {
   if(++next_ == loops_.size()){
     next_ = 0;
   }

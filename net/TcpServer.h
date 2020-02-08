@@ -39,7 +39,7 @@ class TcpServer {
 
    private:
     std::map<int, SessionPtr> connections_;
-    uint64_t sessionid_{0};
+    uint64_t sessionid_{1};
     LoopMgr loopmgr_;
     Acceptor acceptor_;
     std::mutex mutex_;

@@ -2,7 +2,7 @@
 #include "Loop.h"
 #include "Session.h"
 
-Acceptor::Acceptor(const LoopPtr &loop, const std::string &ip, int port)
+Acceptor::Acceptor(Loop* loop, const std::string &ip, int port)
     : loop_(loop), ip_(ip), port_(port), acceptor_(loop->ios()) {}
 
 Acceptor::~Acceptor() {}

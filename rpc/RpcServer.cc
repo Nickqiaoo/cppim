@@ -22,7 +22,7 @@ void RpcServer::registerService(google::protobuf::Service* service)
 
 void RpcServer::start()
 {
-  server_.setNewSessionCalback<RpcSession>();
+  server_.setNewSessionCallback<RpcSession>();
   server_.start();
 }
 

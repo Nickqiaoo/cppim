@@ -8,7 +8,7 @@
 
 class Session : public std::enable_shared_from_this<Session> {
    public:
-    explicit Session(LoopPtr loop, uint64_t id = 0);
+    explicit Session(Loop* loop, uint64_t id = 0);
     ~Session();
     Session(const Session&) = delete;
     Session operator=(const Session&) = delete;
@@ -32,7 +32,7 @@ class Session : public std::enable_shared_from_this<Session> {
    private:
     uint64_t id_;
     std::mutex mutex_;
-    LoopPtr loop_;
+    Loop* loop_;
     Buffer read_buf_;
     Buffer write_buf_;
     asio::ip::tcp::socket socket_;

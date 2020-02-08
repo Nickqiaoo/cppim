@@ -4,7 +4,10 @@
 
 #include <iostream>
 
-Session::Session(LoopPtr loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()), timer_(loop->ios()) {}
+Session::Session(Loop* loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()), timer_(loop->ios()) {
+    LOG_INFO("session create,id:{}",id_);
+
+}
 Session::~Session() {
     LOG_INFO("session destroy,id:{}",id_);
 }
@@ -31,7 +34,7 @@ void Session::read() {
             read_buf_.ensureWritableBytes(size);
             read();
         } else {
-            LOG_ERROR("read error: {}", err.message());
+            //LOG_ERROR("read error: {}", err.message());
             if(reconnect_){
                 reconnect();
             }else{
@@ -104,7 +107,7 @@ void Session::connect(const string &ip, int port) {
         } else {
             LOG_ERROR("connect error: {}", err.message());
             socket_.close();
-            reconnect();
+            //reconnect();
         }
         return;
     });

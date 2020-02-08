@@ -28,7 +28,7 @@ int main() {
     ProfilerStart("job.prof");
     #endif
 
-    auto loop = std::make_shared<Loop>();
+    auto loop = new Loop();
     JobServer server(loop, *kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"),
                      *clientconfig->get_as<std::string>("addr"), *clientconfig->get_as<int>("port"));
     server.Start();
@@ -45,6 +45,7 @@ int main() {
 
     loop->stop();
     server.Stop();
+    delete loop;
     
     return 0;
 }

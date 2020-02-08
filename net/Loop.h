@@ -7,21 +7,22 @@ class Loop {
     typedef std::shared_ptr<asio::io_service::work> workptr;
 
   public:
-    explicit Loop();
+    explicit Loop(std::string str="");
     ~Loop();
 
     void start();
     void stop();
     void runInLoop(const Callback& cb);
     asio::io_service& ios(){
-      return *ios_;
+      return ios_;
     }
 
   private:
     void run();
 
   private:
-    iosptr ios_;
-    workptr work_;
+    asio::io_service ios_;
+    asio::io_service::work work_;
     std::thread thread_;
+    std::string test_;
 };

@@ -5,7 +5,7 @@
 
 class Acceptor {
   public:
-    explicit Acceptor(const LoopPtr& loop, const std::string& ip, int port);
+    explicit Acceptor(Loop* loop, const std::string& ip, int port);
     ~Acceptor();
 
     void start();
@@ -19,7 +19,7 @@ class Acceptor {
     void accept();
 
   private:
-    LoopPtr loop_;
+    Loop* loop_;
     std::string ip_;
     int port_;
     asio::ip::tcp::acceptor acceptor_;

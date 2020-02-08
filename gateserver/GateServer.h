@@ -9,7 +9,7 @@
 
 class GateServer {
    public:
-    GateServer(LoopPtr loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
+    GateServer(Loop* loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
                int clientport, const std::string& serverid);
     ~GateServer();
 
