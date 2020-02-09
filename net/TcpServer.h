@@ -24,7 +24,7 @@ class TcpServer {
     template <typename T>
     SessionPtr newSession() {
         auto loop = loopmgr_.findNextLoop();
-        auto session = std::make_shared<T>(loop, sessionid_++);
+        auto session = std::make_shared<T>(loop, sessionid_);
         session->setMessageCallback(messagecallback_);
         session->setConnectionCallback(connectioncallback_);
         session->setDisconnectCallback(std::bind(&TcpServer::DefaultDisconnectCallback, this, std::placeholders::_1));
@@ -32,15 +32,16 @@ class TcpServer {
             std::lock_guard<std::mutex> guard(mutex_);
             connections_.insert({sessionid_, session});
         }
+        sessionid_++;
         return session;
     }
 
     void DefaultDisconnectCallback(int id);
 
    private:
+    LoopMgr loopmgr_;
     std::map<int, SessionPtr> connections_;
     uint64_t sessionid_{1};
-    LoopMgr loopmgr_;
     Acceptor acceptor_;
     std::mutex mutex_;
     onConnectionCallback connectioncallback_;

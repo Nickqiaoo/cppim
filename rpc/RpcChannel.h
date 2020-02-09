@@ -126,7 +126,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   };
 
   common::RpcCodec codec_;
-  SessionPtr conn_;
+  std::weak_ptr<Session> conn_;
   std::atomic<int64_t> id_{0};
 
   std::mutex mutex_;

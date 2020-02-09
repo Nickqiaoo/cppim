@@ -41,7 +41,7 @@ void LogicServiceImpl::Heartbeat(::google::protobuf::RpcController* controller, 
 
 void LogicServiceImpl::Disconnect(::google::protobuf::RpcController* controller, const ::logic::DisconnectReq* request,
                                   ::logic::DisconnectReply* response, ::google::protobuf::Closure* done) {
-    LOG_INFO("client heartbeat server:{} mid:{} key:{}", request->server(), request->mid(), request->key());
+    LOG_INFO("client disconnect server:{} mid:{} key:{}", request->server(), request->mid(), request->key());
      std::vector<std::string> commandvec;
     commandvec.emplace_back(fmt::format("HDEL {} {}", keyMidServer(request->mid()), request->key()));
     commandvec.emplace_back(fmt::format("DEL {}", keyKeyServer(request->key())));

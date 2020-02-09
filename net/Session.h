@@ -9,7 +9,7 @@
 class Session : public std::enable_shared_from_this<Session> {
    public:
     explicit Session(Loop* loop, uint64_t id = 0);
-    ~Session();
+    virtual ~Session();
     Session(const Session&) = delete;
     Session operator=(const Session&) = delete;
 

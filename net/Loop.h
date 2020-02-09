@@ -21,8 +21,8 @@ class Loop {
     void run();
 
   private:
+    std::string test_;
     asio::io_service ios_;
     asio::io_service::work work_;
     std::thread thread_;
-    std::string test_;
 };

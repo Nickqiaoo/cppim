@@ -28,11 +28,9 @@ int main() {
     ProfilerStart("job.prof");
     #endif
 
-    auto loop = new Loop();
-    JobServer server(loop, *kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"),
+    JobServer server(*kafkaconfig->get_as<std::string>("brokers"), *kafkaconfig->get_as<std::string>("topic"),
                      *clientconfig->get_as<std::string>("addr"), *clientconfig->get_as<int>("port"));
     server.Start();
-    loop->start();
 
     while (!::terminate) {
         MallocExtension::instance()->ReleaseFreeMemory();
@@ -43,9 +41,7 @@ int main() {
         ProfilerStop();
     #endif
 
-    loop->stop();
     server.Stop();
-    delete loop;
     
     return 0;
 }

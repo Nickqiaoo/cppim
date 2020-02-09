@@ -35,7 +35,8 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method, 
         std::lock_guard<std::mutex> lock(mutex_);
         outstandings_[id] = out;
     }
-    codec_.send(id, name, conn_, *request);
+    codec_.send(id, name, conn_.lock(), *request);
+    delete request;
 }
 
 void RpcChannel::onMessage(const SessionPtr conn, Buffer* buf) { codec_.onMessage(conn, buf); }
@@ -43,7 +44,7 @@ void RpcChannel::onMessage(const SessionPtr conn, Buffer* buf) { codec_.onMessag
 void RpcChannel::onRpcMessage(bool isresponse, uint64_t id, const std::string& servicename, const std::string& methodname, const SessionPtr& conn,
                               const char* data, int32_t datalen) {
     //LOG_INFO("onRpcMessage id:{} service:{} method:{}",id,servicename,methodname);
-    assert(conn == conn_);
+    assert(conn == conn_.lock());
     // printf("%s\n", message.DebugString().c_str());
     if (isresponse) {
         OutstandingCall out = {NULL, NULL};
@@ -112,6 +113,6 @@ void RpcChannel::doneCallback(::google::protobuf::Message* response, string name
         uint64_t id = std::strtoull(name.substr(pos + 1).c_str(), nullptr, 0);
         name = name.substr(0, pos);
         id = id | 0x8000000000000000;
-        codec_.send(id, name, conn_, *response);
+        codec_.send(id, name, conn_.lock(), *response);
     }
 }

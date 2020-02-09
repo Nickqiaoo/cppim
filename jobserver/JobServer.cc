@@ -64,8 +64,7 @@ void JobServer::push(const logic::PushMsg& msg) {
             break;
     }
 }
-void JobServer::pushKeys(int32_t operation, const string& server, const google::protobuf::RepeatedPtrField<std::string>& keys,
-                         const std::string& msg) {
+void JobServer::pushKeys(int32_t operation, const string& server, const google::protobuf::RepeatedPtrField<std::string>& keys, const std::string& msg) {
     auto pushmsg = new gate::PushMsgReq();
     gate::PushMsgReply* response = new gate::PushMsgReply;
     pushmsg->mutable_keys()->CopyFrom(keys);
@@ -100,4 +99,6 @@ void JobServer::broadcast(int32_t operation, const std::string& msg, int32_t spe
     rpcclient_.Broadcast(pushmsg, response, nullptr);
 }
 
-void JobServer::HandlePushMsg(gate::PushMsgReply* response) { LOG_INFO("HandlePushMsg"); }
+void JobServer::HandlePushMsg(gate::PushMsgReply* response) {
+    LOG_INFO("HandlePushMsg");
+}

@@ -9,7 +9,7 @@
 
 class GateServer {
    public:
-    GateServer(Loop* loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
+    GateServer(int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
                int clientport, const std::string& serverid);
     ~GateServer();
 
@@ -29,6 +29,8 @@ class GateServer {
    private:
     TcpServer tcpserver_;
     RpcServer rpcserver_;
+
+    Loop loop_;
 
     LogicRpcClient rpcclient_;
     GateServiceImpl gateservice_;

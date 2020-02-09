@@ -1,11 +1,11 @@
 #include "GateServer.h"
 #include "UserSession.h"
 
-GateServer::GateServer(Loop* loop, int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
+GateServer::GateServer(int thrnum, const std::string& tcpip, int tcpport, const std::string& rpcip, int rpcport, const std::string& clientip,
                        int clientport, const std::string& serverid)
     : tcpserver_(thrnum, tcpip, tcpport),
       rpcserver_(thrnum, rpcip, rpcport),
-      rpcclient_(clientip, clientport, this, loop),
+      rpcclient_(clientip, clientport, this, &loop_),
       gateservice_(this),
       clientcodec_(std::bind(&GateServer::onClientMessageCallback, this, _1, _2, _3, _4)),
       serverid_(serverid) {
@@ -49,17 +49,23 @@ void GateServer::Start() {
     rpcserver_.registerService(&gateservice_);
     rpcserver_.start();
     rpcclient_.connect();
+    loop_.start();
 }
 
 void GateServer::Stop() {
     tcpserver_.stop();
     rpcserver_.stop();
+    loop_.stop();
 }
 
 void GateServer::HandleConnect(logic::ConnectReply* response, const SessionPtr session) {
     int64_t mid = response->mid();
     std::string key = response->key();
     std::string roomid = response->roomid();
+    auto usersession = static_pointer_cast<UserSession>(session);
+    usersession->setKey(key);
+    usersession->setMid(mid);
+    usersession->setRoom(roomid);
     for (int i = 0; i < response->accepts_size(); i++) {
     }
     LOG_INFO("handle connect mid:{} key:{} romid:{}", mid, key, roomid);
@@ -81,7 +87,7 @@ void GateServer::HandleDisconnect(const SessionPtr session) {
     request->set_mid(usersession->getMid());
     request->set_key(usersession->getKey());
     rpcclient_.Disconnect(request, response, nullptr);
-
+    
     auto it = channels_.find(usersession->getKey());
     if (it != channels_.end()) {
         channels_.erase(it);

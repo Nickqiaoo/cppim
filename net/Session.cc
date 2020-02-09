@@ -34,7 +34,7 @@ void Session::read() {
             read_buf_.ensureWritableBytes(size);
             read();
         } else {
-            //LOG_ERROR("read error: {}", err.message());
+            LOG_ERROR("read error: {}", err.message());
             if(reconnect_){
                 reconnect();
             }else{
@@ -107,7 +107,7 @@ void Session::connect(const string &ip, int port) {
         } else {
             LOG_ERROR("connect error: {}", err.message());
             socket_.close();
-            //reconnect();
+            reconnect();
         }
         return;
     });
