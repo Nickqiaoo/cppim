@@ -19,7 +19,7 @@ void TcpServer::DefaultDisconnectCallback(int id) {
         if (it != connections_.end()) {
             session = it->second;
             connections_.erase(id);
-            LOG_INFO("session count:{}",session.use_count());
+            //LOG_INFO("session count:{}",session.use_count());
         }
     }
     if (disconnectcallback_) {

@@ -95,7 +95,7 @@ void GateServer::HandleDisconnect(const SessionPtr session) {
     }
     auto roomit = rooms_.find(usersession->getRoom());
     if (roomit != rooms_.end()) {
-        auto roomsession = roomit->second;
+        auto& roomsession = roomit->second;
         roomsession.erase(session);
         LOG_INFO("erase room session key:{} room size:{}", usersession->getKey(), roomsession.size());
     }

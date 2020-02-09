@@ -36,7 +36,7 @@ int main() {
     
     while (!::terminate) {
         sleep(5);
-        //MallocExtension::instance()->ReleaseFreeMemory();
+        MallocExtension::instance()->ReleaseFreeMemory();
     }
 
     server.Stop();
