@@ -12,7 +12,7 @@ class HttpRequest {
     enum Method { kInvalid, kGet, kPost, kHead, kPut, kDelete };
     enum Version { kUnknown, kHttp10, kHttp11 };
 
-    HttpRequest() : method_(kInvalid), version_(kUnknown) {}
+    HttpRequest(bool isclose = false) : method_(kInvalid), version_(kUnknown), closeConnection_(isclose) {}
 
     void setVersion(Version v) { version_ = v; }
 
@@ -99,6 +99,8 @@ class HttpRequest {
         return result;
     }
 
+    void addQuery(const std::string &parm, const std::string &value) { querys_.insert(parm, value); }
+
     string getQuery(const string &field) const {
         string result;
         std::map<string, string>::const_iterator it = querys_.find(field);
@@ -117,12 +119,45 @@ class HttpRequest {
         headers_.swap(that.headers_);
     }
 
+    void appendToBuffer(BufferPtr output) const {
+    output->append(methodString());
+    output->append(" ");
+    output->append(path_);
+    output->append("?");
+    for (const auto& query : querys_) {
+        output->append(query.first);
+        output->append("=");
+        output->append(query.second);
+        output->append("&");
+    }
+    output->append(" ");
+    output->append("HTTP/1.1");
+    output->append("\r\n");
+
+    if (closeConnection_) {
+        output->append("Connection: close\r\n");
+    } else {
+        output->append("Connection: Keep-Alive\r\n");
+    }
+
+    for (const auto& header : headers_) {
+        output->append(header.first);
+        output->append(": ");
+        output->append(header.second);
+        output->append("\r\n");
+    }
+
+    output->append("\r\n");
+    output->append(body_);
+}
+
    private:
     Method method_;
     Version version_;
     string path_;
     string query_;
     string body_;
+    bool closeConnection_;
     std::map<string, string> querys_;
     std::map<string, string> headers_;
 };

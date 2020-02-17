@@ -14,7 +14,12 @@ class TcpClient {
         connectioncallback_ = cb;
         session_->setConnectionCallback(connectioncallback_);
     }
+    
     SessionPtr getSession() { return session_; }
+
+    void send(BufferPtr buf){
+        session_->send(buf);
+    }
 
    private:
     std::string ip_;

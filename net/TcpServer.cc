@@ -14,7 +14,7 @@ void TcpServer::DefaultDisconnectCallback(int id) {
     SessionPtr session;
     {
         std::lock_guard<std::mutex> guard(mutex_);
-        LOG_INFO("connection disconnect, size:{}", connections_.size());
+        //LOG_INFO("connection disconnect, size:{}", connections_.size());
         auto it = connections_.find(id);
         if (it != connections_.end()) {
             session = it->second;

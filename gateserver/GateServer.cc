@@ -91,7 +91,7 @@ void GateServer::HandleDisconnect(const SessionPtr session) {
     auto it = channels_.find(usersession->getKey());
     if (it != channels_.end()) {
         channels_.erase(it);
-        LOG_INFO("erase channel session key:{} channel size:{}", usersession->getKey(), channels_.size());
+        //LOG_INFO("erase channel session key:{} channel size:{}", usersession->getKey(), channels_.size());
     }
     auto roomit = rooms_.find(usersession->getRoom());
     if (roomit != rooms_.end()) {

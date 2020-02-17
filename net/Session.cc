@@ -5,11 +5,11 @@
 #include <iostream>
 
 Session::Session(Loop* loop, uint64_t id) : id_(id), loop_(loop), socket_(loop->ios()), timer_(loop->ios()) {
-    LOG_INFO("session create,id:{}",id_);
+    //LOG_INFO("session create,id:{}",id_);
 
 }
 Session::~Session() {
-    LOG_INFO("session destroy,id:{}",id_);
+    //LOG_INFO("session destroy,id:{}",id_);
 }
 
 void Session::start() {
@@ -17,7 +17,7 @@ void Session::start() {
     asio::ip::tcp::no_delay nodelay(true);
     socket_.set_option(nodelay);
     socket_.set_option(asio::socket_base::keep_alive(true));
-    LOG_INFO("session connected id:{}",id_);
+    //LOG_INFO("session connected id:{}",id_);
     if (connectioncallback_) {
         connectioncallback_(shared_from_this());
     }
@@ -34,11 +34,10 @@ void Session::read() {
             read_buf_.ensureWritableBytes(size);
             read();
         } else {
-            LOG_ERROR("read error: {}", err.message());
+            //LOG_ERROR("read error: {}", err.message());
             if(reconnect_){
                 reconnect();
             }else{
-                disconnectcallback_(id_);
                 close();
             }
             return;
@@ -85,7 +84,6 @@ void Session::write() {
             }
             write();
         } else {
-            disconnectcallback_(id_);
             LOG_ERROR("write error: {}", err.message());
             close();
             return;
@@ -126,5 +124,6 @@ void Session::reconnect() {
 
 void Session::close() {
     auto self(shared_from_this());
+    disconnectcallback_(id_);
     loop_->runInLoop([this, self]() { socket_.close(); });
 }
