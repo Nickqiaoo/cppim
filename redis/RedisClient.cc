@@ -31,7 +31,6 @@ std::shared_ptr<redisReply> RedisClient::Execute(const std::vector<std::string>&
     mutex_.lock();
     std::vector<const char*> argv;
     std::transform(cmd.begin(), cmd.end(), std::back_inserter(argv), [](const std::string& s) { return s.c_str(); });
-    // Construct a size_t* of string lengths from the vector
     std::vector<size_t> argvlen;
     std::transform(cmd.begin(), cmd.end(), std::back_inserter(argvlen), [](const std::string& s) { return s.size(); });
 
