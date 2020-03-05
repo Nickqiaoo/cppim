@@ -76,6 +76,7 @@ class Vegas {
                     updateTime_.store(updateTime);
                     int64_t limit = limit_.load();
                     int64_t queue = double(limit) * (1 - double(minRTT_) / double(lastRTT));
+                    LOG_INFO("queue:{}",queue);
                     probes_--;
                     if (probes_ <= 0) {
                         int64_t maxFlight = s->MaxInFlight();
@@ -114,10 +115,10 @@ class Vegas {
     }
 
    private:
-    const int64_t minWindowTime_ = 500 * 1000 * 1000; //500ms
+    const int64_t minWindowTime_ = 5 * 1000 * 1000; //500ms
     const int64_t maxWindowTime_ = 2000 * 1000 * 1000; // 2000ms
-    const int64_t minLimit_ = 8;
-    const int64_t maxLimit_ = 2048;
+    const int64_t minLimit_ = 50;
+    const int64_t maxLimit_ = 4096;
     
     std::atomic<int64_t> limit_{minLimit_};
     std::atomic<int64_t> inFlight_{0};

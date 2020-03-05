@@ -127,3 +127,14 @@ void Session::close() {
     disconnectcallback_(id_);
     loop_->runInLoop([this, self]() { socket_.close(); });
 }
+
+void Session::addTimerHandler(int millsec, const Callback& cb){
+    timer_.expires_from_now(std::chrono::milliseconds(millsec));
+    auto self(shared_from_this());
+    timer_.async_wait([self, this, cb](const std::error_code &err) {
+        if (!err) {
+            LOG_INFO("do response");
+            cb();
+        }
+    });
+}

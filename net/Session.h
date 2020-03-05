@@ -21,6 +21,7 @@ class Session : public std::enable_shared_from_this<Session> {
     void setDisconnectCallback(const onDisconnectCallback& cb) { disconnectcallback_ = cb; }
 
     void send(BufferPtr buffer);
+    void addTimerHandler(int millsec, const Callback& cb);
     void connect(const string& ip, int port);
     void close();
 

@@ -8,6 +8,7 @@ using namespace std::placeholders;
 
 HttpServer::HttpServer(int thrnum, const std::string& ip, int port) : tcpserver_(thrnum, ip, port) {
     tcpserver_.setMessageCallback(std::bind(&HttpServer::onMessage, this, _1, _2));
+    std::srand(time(nullptr));
 }
 
 HttpServer::~HttpServer() {}
@@ -58,12 +59,18 @@ void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
         LOG_INFO("Allow:{} Limit Stat limit:{} inFlight:{} minRTT:{} lastRTT:{}",status,stat.limit_,stat.inFlight_,stat.minRTT_,stat.lastRTT_);
         if (res.second) {
             it->second(req, response);
+            response->setDelay();
             if (!response->delay()) {
                 response->setStatusCode(HttpResponse::k200Ok);
                 response->setStatusMessage("OK");
                 doResponse(response);
             }
-            res.first(Success);
+            conn->addTimerHandler(10,[=]{
+                res.first(Success);
+                response->setStatusCode(HttpResponse::k200Ok);
+                response->setStatusMessage("OK");
+                doResponse(response);
+            });
         } else {
             response->setStatusCode(HttpResponse::k200Ok);
             response->setStatusMessage("Too Frequency");
