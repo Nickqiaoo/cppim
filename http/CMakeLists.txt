@@ -3,6 +3,7 @@ file(GLOB HTTP_HEADERS *.h *.hpp)
 
 include_directories(${CMAKE_SOURCE_DIR}/common/)
 include_directories(${CMAKE_SOURCE_DIR}/net/)
+include_directories(${CMAKE_SOURCE_DIR}/rate/)
 
 add_library(http STATIC ${HTTP_SOURCES} ${HTTP_HEADERS})
 set_target_properties(http PROPERTIES FOLDER "http")

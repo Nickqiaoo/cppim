@@ -61,8 +61,9 @@ void LogicServer::PushMsgByMidsHandler(const HttpRequest& request, HttpResponseP
     }
     if (!mids.empty() && operation != 0) {
         // response->delay();
-        LOG_INFO("http request key: {} operation: {}", mids[0], operation);
-        PushMsgByMids(midsvec, operation, request.body());
+        //LOG_INFO("http request key: {} operation: {}", mids[0], operation);
+        //sleep(1);
+        //PushMsgByMids(midsvec, operation, request.body());
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);
         response->setStatusMessage("NotFound");

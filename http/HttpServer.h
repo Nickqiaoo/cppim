@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include "TcpServer.h"
+#include "Limiter.h"
 
 class HttpRequest;
 class HttpResponse;
@@ -24,5 +25,6 @@ class HttpServer {
 
    private:
     TcpServer tcpserver_;
+    Limiter limiter_;
     std::unordered_map<std::string, HttpCallback> handler_;
 };

@@ -24,7 +24,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             logic::ConnectReply* response = new logic::ConnectReply;
             request->set_server(serverid_);
             request->set_token(body);
-            rpcclient_.Connect(request, response, ::google::protobuf::internal::NewCallback(this, &GateServer::HandleConnect, response, session));
+            rpcclient_.Connect(request, response, NewCallback(this, &GateServer::HandleConnect, response, session));
         } break;
 
         case 2: {
@@ -34,7 +34,7 @@ void GateServer::onClientMessageCallback(const SessionPtr& session, int op, int 
             request->set_server(serverid_);
             request->set_mid(usersession->getMid());
             request->set_key(usersession->getKey());
-            rpcclient_.HeartBeat(request, response, ::google::protobuf::internal::NewCallback(this, &GateServer::HandleHeartbeat, response, session));
+            rpcclient_.HeartBeat(request, response, NewCallback(this, &GateServer::HandleHeartbeat, response, session));
         } break;
 
         default:

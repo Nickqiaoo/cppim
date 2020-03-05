@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include "Buffer.h"
+
 using namespace std;
 
 class HttpRequest {
@@ -99,7 +101,7 @@ class HttpRequest {
         return result;
     }
 
-    void addQuery(const std::string &parm, const std::string &value) { querys_.insert(parm, value); }
+    void addQuery(const std::string &parm, const std::string &value) { querys_.insert({parm, value}); }
 
     string getQuery(const string &field) const {
         string result;
@@ -119,37 +121,37 @@ class HttpRequest {
         headers_.swap(that.headers_);
     }
 
-    void appendToBuffer(BufferPtr output) const {
-    output->append(methodString());
-    output->append(" ");
-    output->append(path_);
-    output->append("?");
-    for (const auto& query : querys_) {
-        output->append(query.first);
-        output->append("=");
-        output->append(query.second);
-        output->append("&");
-    }
-    output->append(" ");
-    output->append("HTTP/1.1");
-    output->append("\r\n");
-
-    if (closeConnection_) {
-        output->append("Connection: close\r\n");
-    } else {
-        output->append("Connection: Keep-Alive\r\n");
-    }
-
-    for (const auto& header : headers_) {
-        output->append(header.first);
-        output->append(": ");
-        output->append(header.second);
+    void appendToBuffer(Buffer* output) const {
+        output->append(methodString());
+        output->append(" ");
+        output->append(path_);
+        output->append("?");
+        for (const auto& query : querys_) {
+            output->append(query.first);
+            output->append("=");
+            output->append(query.second);
+            output->append("&");
+        }
+        output->append(" ");
+        output->append("HTTP/1.1");
         output->append("\r\n");
-    }
 
-    output->append("\r\n");
-    output->append(body_);
-}
+        if (closeConnection_) {
+            output->append("Connection: close\r\n");
+        } else {
+            output->append("Connection: Keep-Alive\r\n");
+        }
+
+        for (const auto& header : headers_) {
+            output->append(header.first);
+            output->append(": ");
+            output->append(header.second);
+            output->append("\r\n");
+        }
+
+        output->append("\r\n");
+        output->append(body_);
+    }
 
    private:
     Method method_;

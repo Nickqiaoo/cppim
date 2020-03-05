@@ -82,6 +82,7 @@ link_directories(/usr/local/lib/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/spdlog/include/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/cpptoml/include/)
 include_directories(${CMAKE_SOURCE_DIR}/opt/)
+include_directories(${CMAKE_SOURCE_DIR}/rate/)
 include_directories(/usr/local/include/)
 
 #add_subdirectory(opt)

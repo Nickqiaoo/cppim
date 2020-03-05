@@ -2,6 +2,7 @@
 #include <iostream>
 #include "HttpResponse.h"
 #include "HttpSession.h"
+#include "log.h"
 
 using namespace std::placeholders;
 
@@ -16,9 +17,7 @@ void HttpServer::start() {
     tcpserver_.start();
 }
 
-void HttpServer::stop(){
-    tcpserver_.stop();
-}
+void HttpServer::stop() { tcpserver_.stop(); }
 
 void HttpServer::doResponse(HttpResponsePtr response) {
     auto buf = std::make_shared<Buffer>();
@@ -49,10 +48,25 @@ void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
     auto response = std::make_shared<HttpResponse>(conn, close);
     auto it = handler_.find(req.path());
     if (it != handler_.end()) {
-        it->second(req, response);
-        if (!response->delay()) {
+        auto res = limiter_.Allow();
+        //res.second = true;
+        auto stat = limiter_.Stat();
+        std::string status = "fail";
+        if(res.second){
+            status = "success";
+        }
+        LOG_INFO("Allow:{} Limit Stat limit:{} inFlight:{} minRTT:{} lastRTT:{}",status,stat.limit_,stat.inFlight_,stat.minRTT_,stat.lastRTT_);
+        if (res.second) {
+            it->second(req, response);
+            if (!response->delay()) {
+                response->setStatusCode(HttpResponse::k200Ok);
+                response->setStatusMessage("OK");
+                doResponse(response);
+            }
+            res.first(Success);
+        } else {
             response->setStatusCode(HttpResponse::k200Ok);
-            response->setStatusMessage("OK");
+            response->setStatusMessage("Too Frequency");
             doResponse(response);
         }
     } else {
