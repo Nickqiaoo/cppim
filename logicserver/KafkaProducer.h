@@ -3,6 +3,7 @@
 #include <memory>
 #include "librdkafka/rdkafkacpp.h"
 #include "log.h"
+#include "net_define.h"
 
 class ProduceCb : public RdKafka::DeliveryReportCb {
    public:
@@ -12,7 +13,12 @@ class ProduceCb : public RdKafka::DeliveryReportCb {
         if (message.err())
             LOG_ERROR("Message delivery failed: {}", message.errstr());
         else
-            LOG_INFO("Message delivery topic: {} [{}] at offset {}", message.topic_name(), message.partition(), message.offset());
+            LOG_INFO("Message delivery topic: {} [{}] at offset {}", message.topic_name(), message.partition(), message.offset());\
+        Callback* cb = static_cast<Callback*>(message.msg_opaque());
+        if(cb!=nullptr){
+            (*cb)();
+            delete cb;
+        }
     }
 };
 
@@ -21,11 +27,12 @@ class KafkaProducer {
     KafkaProducer(const std::string& broker, const std::string& topic);
     ~KafkaProducer();
     
-    void Produce(const std::string& key, const std::string& value);
+    void Produce(const std::string& key, const std::string& value, Callback* cb);
 
    private:
     std::string broker_;
     std::string topic_;
+    ProduceCb cb_;
     std::shared_ptr<RdKafka::Producer> producer_;
     std::shared_ptr<RdKafka::Conf> conf_;
 };

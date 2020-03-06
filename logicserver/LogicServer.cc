@@ -60,10 +60,9 @@ void LogicServer::PushMsgByMidsHandler(const HttpRequest& request, HttpResponseP
         midsvec.push_back(stoi(elem));
     }
     if (!mids.empty() && operation != 0) {
-        // response->delay();
-        //LOG_INFO("http request key: {} operation: {}", mids[0], operation);
-        //sleep(1);
-        //PushMsgByMids(midsvec, operation, request.body());
+        //response->delay();
+        LOG_INFO("http request key: {} operation: {}", mids[0], operation);
+        PushMsgByMids(midsvec, operation, request.body());
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);
         response->setStatusMessage("NotFound");
@@ -143,7 +142,7 @@ void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg) {
     pushmsg.set_speed(speed);
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce(std::to_string(op), pushmsg.SerializeAsString());
+    kafkaproducer_.Produce(std::to_string(op), pushmsg.SerializeAsString(),nullptr);
 }
 
 void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::string& msg) {
@@ -153,7 +152,7 @@ void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::stri
     pushmsg.set_operation(op);
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce(room, pushmsg.SerializeAsString());
+    kafkaproducer_.Produce(room, pushmsg.SerializeAsString(),nullptr);
 }
 
 void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg) {
@@ -166,7 +165,7 @@ void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::st
     }
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce(keys[0], pushmsg.SerializeAsString());
+    kafkaproducer_.Produce(keys[0], pushmsg.SerializeAsString(),nullptr);
 }
 
 int64_t LogicServer::getMilliSecond() {
