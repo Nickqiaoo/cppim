@@ -33,23 +33,22 @@ class Vegas {
 
     std::pair<Done, bool> Acquire() {
         bool success = false;
-        inFlight_++;
-        int64_t inFlight = 1 + inFlight_.load();
+        int64_t inFlight = ++inFlight_;
         if (inFlight <= limit_.load()) {
             success = true;
         }
 
         return std::make_pair(
             [=](int64_t start, Op op) {
-                LOG_INFO("do Done");
                 inFlight_--;
                 if (op == Ignore) {
                     return;
                 }
+                LOG_INFO("Success do Done");
                 auto end = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                LOG_INFO("start:{} end:{}",start,end);
                 int64_t rtt = end - start;
                 auto s = sample_;
+                LOG_INFO("start:{} end:{} updateTime:{} Count:{}",start,end,updateTime_.load(),s->Count());
                 if (op == Drop) {
                     s->Add(rtt, inFlight, true);
                 } else if (op == Success) {
@@ -57,13 +56,14 @@ class Vegas {
                 }
                 if (end > updateTime_.load() && s->Count() >= 16) {
                     std::lock_guard<std::mutex> mutex(mu_);
-                    LOG_INFO("updateTime:{} Count:{}",updateTime_.load(),s->Count());
                     if (sample_ != s) {
                         return;
                     }
                     sample_ = std::make_shared<Sample>();
 
                     int64_t lastRTT = s->RTT();
+                    LOG_INFO("start update updateTime:{} Count:{}",updateTime_.load(),s->Count());
+                    LOG_INFO("reset sample lastRTT:{}",lastRTT/(1000 * 1000));
                     if (lastRTT <= 0) {
                         return;
                     }
@@ -115,7 +115,7 @@ class Vegas {
     }
 
    private:
-    const int64_t minWindowTime_ = 5 * 1000 * 1000; //500ms
+    const int64_t minWindowTime_ = 50 * 1000 * 1000; //500ms
     const int64_t maxWindowTime_ = 2000 * 1000 * 1000; // 2000ms
     const int64_t minLimit_ = 50;
     const int64_t maxLimit_ = 4096;

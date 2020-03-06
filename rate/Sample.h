@@ -10,7 +10,7 @@ class Sample {
     ~Sample() {}
 
     void Add(int64_t rtt, int64_t inflight, bool drop) {
-        LOG_INFO("rtt:{} inflight:{} count:{} drop:{}",rtt, inflight, count_, drop);
+        LOG_INFO("Add rtt:{} inflight:{} count:{} drop:{}",rtt, inflight, count_, drop);
         if (drop) {
             drop_.store(1);
         }

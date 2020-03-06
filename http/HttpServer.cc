@@ -58,14 +58,15 @@ void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
         }
         LOG_INFO("Allow:{} Limit Stat limit:{} inFlight:{} minRTT:{} lastRTT:{}",status,stat.limit_,stat.inFlight_,stat.minRTT_,stat.lastRTT_);
         if (res.second) {
-            it->second(req, response);
-            response->setDelay();
-            if (!response->delay()) {
-                response->setStatusCode(HttpResponse::k200Ok);
-                response->setStatusMessage("OK");
-                doResponse(response);
-            }
+            // it->second(req, response);
+            // response->setDelay();
+            // if (!response->delay()) {
+            //     response->setStatusCode(HttpResponse::k200Ok);
+            //     response->setStatusMessage("OK");
+            //     doResponse(response);
+            // }
             conn->addTimerHandler(10,[=]{
+                LOG_INFO("Timer start");
                 res.first(Success);
                 response->setStatusCode(HttpResponse::k200Ok);
                 response->setStatusMessage("OK");

@@ -129,12 +129,17 @@ void Session::close() {
 }
 
 void Session::addTimerHandler(int millsec, const Callback& cb){
-    timer_.expires_from_now(std::chrono::milliseconds(millsec));
+    LOG_INFO("Add Timer");
+    asio::steady_timer* timer = new asio::steady_timer(loop_->ios());
+    auto size = timer->expires_from_now(std::chrono::milliseconds(millsec));
+    LOG_INFO("cancel size:{}",size);
     auto self(shared_from_this());
-    timer_.async_wait([self, this, cb](const std::error_code &err) {
+    timer->async_wait([self, this, cb](const std::error_code &err) {
         if (!err) {
             LOG_INFO("do response");
             cb();
+        }else{
+            LOG_INFO("Timer error:{}",err.message());
         }
     });
 }
