@@ -6,8 +6,8 @@
 
 using namespace std::placeholders;
 
-LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip,
-                         int redisport, const std::string& brokers, const std::string& topic, int serverid)
+LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, const std::string& rpcip, int rpcport, const std::string& redisip, int redisport,
+                         const std::string& brokers, const std::string& topic, int serverid)
     : serverid_(serverid),
       httpserver_(thrnum, httpip, httpport),
       rpcserver_(thrnum, rpcip, rpcport),
@@ -17,6 +17,7 @@ LogicServer::LogicServer(int thrnum, const std::string& httpip, int httpport, co
     if (!redisclient_.Connect()) {
         LOG_ERROR("redis connect error");
     }
+    loop_.runInLoop([=] { kafkaproducer_.Poll(); });
 }
 LogicServer::~LogicServer() {}
 
@@ -28,9 +29,10 @@ void LogicServer::Start() {
     httpserver_.start();
     rpcserver_.registerService(&logicservice_);
     rpcserver_.start();
+    loop_.start();
 }
 
-void LogicServer::Stop(){
+void LogicServer::Stop() {
     httpserver_.stop();
     rpcserver_.stop();
 }
@@ -60,9 +62,10 @@ void LogicServer::PushMsgByMidsHandler(const HttpRequest& request, HttpResponseP
         midsvec.push_back(stoi(elem));
     }
     if (!mids.empty() && operation != 0) {
-        //response->delay();
+        response->delay();
         LOG_INFO("http request key: {} operation: {}", mids[0], operation);
-        PushMsgByMids(midsvec, operation, request.body());
+        Callback* cb = (Callback*)(response->getSessionPtr()->GetContext());
+        PushMsgByMids(midsvec, operation, request.body(), cb);
     } else {
         response->setStatusCode(HttpResponse::k404NotFound);
         response->setStatusMessage("NotFound");
@@ -113,11 +116,11 @@ void LogicServer::PushMsgByKeys(const std::vector<std::string>& keys, int op, co
     }
 
     for (auto elem : serverKeys) {
-        PushMsg(elem.second, op, elem.first, msg);
+        PushMsg(elem.second, op, elem.first, msg, nullptr);
     }
 }
 
-void LogicServer::PushMsgByMids(const std::vector<int32_t>& mids, int op, const string& msg) {
+void LogicServer::PushMsgByMids(const std::vector<int32_t>& mids, int op, const string& msg, Callback* cb) {
     std::unordered_map<std::string, std::vector<std::string>> serverKeys;
     std::unordered_map<std::string, std::string> keyServer;
     for (auto it : mids) {
@@ -131,7 +134,7 @@ void LogicServer::PushMsgByMids(const std::vector<int32_t>& mids, int op, const 
     }
 
     for (auto elem : serverKeys) {
-        PushMsg(elem.second, op, elem.first, msg);
+        PushMsg(elem.second, op, elem.first, msg, cb);
     }
 }
 
@@ -142,7 +145,7 @@ void LogicServer::PushMsgToAll(int speed, int op, const std::string& msg) {
     pushmsg.set_speed(speed);
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce(std::to_string(op), pushmsg.SerializeAsString(),nullptr);
+    kafkaproducer_.Produce(std::to_string(op), pushmsg.SerializeAsString(), nullptr);
 }
 
 void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::string& msg) {
@@ -152,10 +155,10 @@ void LogicServer::PushMsgByRoom(const std::string& room, int op, const std::stri
     pushmsg.set_operation(op);
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce(room, pushmsg.SerializeAsString(),nullptr);
+    kafkaproducer_.Produce(room, pushmsg.SerializeAsString(), nullptr);
 }
 
-void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg) {
+void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg, Callback* cb) {
     logic::PushMsg pushmsg;
     pushmsg.set_type(logic::PushMsg::PUSH);
     pushmsg.set_operation(op);
@@ -165,7 +168,7 @@ void LogicServer::PushMsg(const vector<std::string>& keys, int op, const std::st
     }
     pushmsg.set_msg(msg);
 
-    kafkaproducer_.Produce(keys[0], pushmsg.SerializeAsString(),nullptr);
+    kafkaproducer_.Produce(keys[0], pushmsg.SerializeAsString(), cb);
 }
 
 int64_t LogicServer::getMilliSecond() {

@@ -4,6 +4,7 @@
 #include "KafkaProducer.h"
 #include "LogicServiceImpl.h"
 #include "RpcServer.h"
+#include "Loop.h"
 
 class LogicServer {
    public:
@@ -21,10 +22,10 @@ class LogicServer {
    private:
     int64_t getMilliSecond();
     void PushMsgByKeys(const vector<std::string>& keys, int op, const std::string& msg);
-    void PushMsgByMids(const vector<int32_t>& mids,int op, const std::string& msg);
+    void PushMsgByMids(const vector<int32_t>& mids,int op, const std::string& msg, Callback* cb);
     void PushMsgByRoom(const std::string& room, int op, const std::string& msg);
     void PushMsgToAll(int speed, int op, const std::string& msg);
-    void PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg);
+    void PushMsg(const vector<std::string>& keys, int op, const std::string& server, const string& msg, Callback* cb);
 
    private:
     int serverid_;
@@ -33,5 +34,6 @@ class LogicServer {
     
     RedisClient redisclient_;
     KafkaProducer kafkaproducer_;
+    Loop loop_;
     LogicServiceImpl logicservice_;
 };

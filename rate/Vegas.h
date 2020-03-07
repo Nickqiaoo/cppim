@@ -48,7 +48,7 @@ class Vegas {
                 auto end = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
                 int64_t rtt = end - start;
                 auto s = sample_;
-                LOG_INFO("start:{} end:{} updateTime:{} Count:{}",start,end,updateTime_.load(),s->Count());
+                LOG_INFO("rtt:{} updateTime:{} Count:{}",rtt,updateTime_.load(),s->Count());
                 if (op == Drop) {
                     s->Add(rtt, inFlight, true);
                 } else if (op == Success) {
@@ -59,7 +59,7 @@ class Vegas {
                     if (sample_ != s) {
                         return;
                     }
-                    sample_ = std::make_shared<Sample>();
+                    sample_ = std::make_shared<Sample>(); //TODO fix atomic
 
                     int64_t lastRTT = s->RTT();
                     LOG_INFO("start update updateTime:{} Count:{}",updateTime_.load(),s->Count());
@@ -115,9 +115,9 @@ class Vegas {
     }
 
    private:
-    const int64_t minWindowTime_ = 50 * 1000 * 1000; //500ms
+    const int64_t minWindowTime_ = 500 * 1000 * 1000; //500ms
     const int64_t maxWindowTime_ = 2000 * 1000 * 1000; // 2000ms
-    const int64_t minLimit_ = 50;
+    const int64_t minLimit_ = 8;
     const int64_t maxLimit_ = 4096;
     
     std::atomic<int64_t> limit_{minLimit_};

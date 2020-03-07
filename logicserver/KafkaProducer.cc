@@ -19,8 +19,7 @@ KafkaProducer::KafkaProducer(const std::string& broker, const std::string& topic
 KafkaProducer::~KafkaProducer() {}
 
 void KafkaProducer::Produce(const std::string& key, const std::string& value, Callback* cb) {
-    // LOG_INFO("kafka produce message:{}", value);
+    //LOG_INFO("kafka produce message:{}", value);
     RdKafka::ErrorCode err = producer_->produce(topic_, RdKafka::Topic::PARTITION_UA, RdKafka::Producer::RK_MSG_COPY,
                                                 const_cast<char*>(value.c_str()), value.size(), NULL, 0, 0, NULL, cb);
-    producer_->poll(0);
 }

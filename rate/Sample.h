@@ -29,6 +29,7 @@ class Sample {
         if (count == 0) {
             return 0;
         }
+        LOG_INFO("totalRTT:{} count:{}",totalRTT_.load(), count);
         return totalRTT_.load() / count;
     }
 

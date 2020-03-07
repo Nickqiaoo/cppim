@@ -58,14 +58,14 @@ void HttpServer::onRequest(const HttpSessionPtr& conn, const HttpRequest& req) {
         }
         LOG_INFO("Allow:{} Limit Stat limit:{} inFlight:{} minRTT:{} lastRTT:{}",status,stat.limit_,stat.inFlight_,stat.minRTT_,stat.lastRTT_);
         if (res.second) {
-            it->second(req, response);
-            std::any cb = [=]{
+            Callback* cb = new Callback([=]{
                 res.first(Success);
                 response->setStatusCode(HttpResponse::k200Ok);
                 response->setStatusMessage("OK");
                 doResponse(response);
-            };
-            conn->setContext(cb);
+            });
+            conn->SetContext(cb);
+            it->second(req, response);
             //response->setDelay();
             if (!response->delay()) {
                 response->setStatusCode(HttpResponse::k200Ok);

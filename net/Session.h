@@ -1,5 +1,4 @@
 #pragma once
-#include <any>
 #include <memory>
 #include <mutex>
 
@@ -25,11 +24,10 @@ class Session : public std::enable_shared_from_this<Session> {
     void addTimerHandler(int millsec, const Callback& cb);
     void connect(const string& ip, int port);
     void close();
-    void setContext(const std::any& context) { context_ = context; }
+    void SetContext(void* context) { context_ = context; }
 
-    const std::any& getContext() const { return context_; }
+    void* GetContext() const { return context_; }
 
-    std::any* getMutableContext() { return &context_; }
 
    private:
     void read();
@@ -47,7 +45,7 @@ class Session : public std::enable_shared_from_this<Session> {
     bool reconnect_{false};
     string ip_;
     int port_;
-    std::any context_;
+    void* context_;
     std::vector<BufferPtr> unsend_queue_;
     std::vector<BufferPtr> tmp_queue_;
     onMessageCallback messagecallback_;

@@ -28,6 +28,11 @@ class KafkaProducer {
     ~KafkaProducer();
     
     void Produce(const std::string& key, const std::string& value, Callback* cb);
+    void Poll(){
+        while(true){
+            producer_->poll(-1);
+        }
+    }
 
    private:
     std::string broker_;
