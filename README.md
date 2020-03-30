@@ -2,6 +2,29 @@
 
 使用C++重新实现goim，网络库基于asio，rpc基于protobuf。
 
+## 目录说明
+http httpserver实现
+
+net 网络库实现
+
+rpc rpc实现
+
+rate vegas限流实现
+
+redis 简单封装hiredis的同步redis实现
+
+gateserver 长连接网关实现
+
+logicserver 消息推送到kafka实现
+
+jobserver kafka消费实现
+
+opt 部分依赖
+
+## 构建
+
+build目录下运行build.sh bin目录下运行
+
 ## RPC协议格式
 
 ![rpcprotocol](./docs/RpcProtocol.png)
