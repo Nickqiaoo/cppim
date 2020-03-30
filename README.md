@@ -1,6 +1,6 @@
 # cppim
 
-使用C++重新实现goim，网络库基于asio，rpc基于protobuf。
+使用C++重新实现[goim](https://github.com/Terry-Mao/goim)，网络库基于asio，rpc基于protobuf。
 
 ## 目录说明
 http httpserver实现
